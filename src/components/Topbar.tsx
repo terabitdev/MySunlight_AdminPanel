@@ -8,6 +8,8 @@ import {
   Moon, 
   LogOut 
 } from 'lucide-react';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebase';
 
 interface TopbarProps {
   currentPage?: string;
@@ -15,6 +17,15 @@ interface TopbarProps {
 
 export default function Topbar({ currentPage = 'dashboard' }: TopbarProps) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      // The app will automatically redirect to SignIn page due to auth state listener in App.tsx
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
 
   const getPageTitle = (page: string) => {
     switch (page) {
@@ -89,19 +100,19 @@ export default function Topbar({ currentPage = 'dashboard' }: TopbarProps) {
                   <User className="h-4 w-4" />
                   Profile Settings
                 </a>
-                <a href="#" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 font-inter-tight">
-                  <Settings className="h-4 w-4" />
-                  Account Settings
-                </a>
-                <a href="#" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 font-inter-tight">
-                  <Moon className="h-4 w-4" />
-                  Dark Mode
-                </a>
+               
+              
                 <hr className="my-2 border-gray-200" />
-                <a href="#" className="flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-inter-tight">
+                <button 
+                  onClick={() => {
+                    setShowProfileMenu(false);
+                    handleSignOut();
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-inter-tight transition-colors duration-200 cursor-pointer"
+                >
                   <LogOut className="h-4 w-4" />
                   Sign Out
-                </a>
+                </button>
               </div>
             )}
           </div>
