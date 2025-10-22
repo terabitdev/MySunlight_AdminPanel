@@ -41,7 +41,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-custom-page-gradient text-gray-800 font-manrope overflow-hidden">
+    <div className="min-h-screen  w-full bg-custom-page-gradient text-gray-800 font-manrope overflow-hidden">
       <div className="h-screen flex">
         <Sidebar 
           onNavigate={handleNavigation} 

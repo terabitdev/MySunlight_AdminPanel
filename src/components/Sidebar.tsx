@@ -49,20 +49,19 @@ export default function Sidebar({ onNavigate, currentPage = 'dashboard' }: Sideb
   };
 
   return (
-    <aside className="w-72 h-full border-r border-gray-200/50 shadow-lg flex-shrink-0">
+    <aside className="w-72 h-full border-r border-gray-400/50 shadow-2xl ">
       {/* Header */}
-      <div className="p-6 border-b border-gray-200/30">
-        <div className="flex items-center gap-3 mb-2">
+      <div className="py-3 px-6 h-20 border-b border-gray-400/50">
+        <div className="flex items-center gap-3 mb-1">
           <div className="relative">
             <img 
               src="/assets/Logo.svg" 
               alt="MySunlight Logo" 
               className="h-10 w-10 drop-shadow-md" 
             />
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white shadow-sm"></div>
           </div>
           <div>
-            <h1 className="text-xl font-david-libre font-bold text-gray-800">MySunlight</h1>
+            <h1 className="text-2xl font-david-libre font-bold text-gray-800">MySunlight</h1>
             <p className="text-sm text-gray-600 font-inter-tight">Admin Panel</p>
           </div>
         </div>
@@ -70,8 +69,8 @@ export default function Sidebar({ onNavigate, currentPage = 'dashboard' }: Sideb
 
       {/* Navigation */}
       <nav className="p-4 space-y-2 flex flex-col h-full">
-        <div className="mb-4">
-          <h2 className="text-xs font-inter-tight font-semibold text-gray-500 uppercase tracking-wider px-3 mb-3">
+        <div className="mt-4">
+          <h2 className="text-sm font-inter-tight font-semibold text-gray-600 uppercase tracking-wider px-3 mb-3">
             Main Menu
           </h2>
           
@@ -86,12 +85,12 @@ export default function Sidebar({ onNavigate, currentPage = 'dashboard' }: Sideb
                 onMouseEnter={() => setHoveredItem(item.id)}
                 onMouseLeave={() => setHoveredItem(null)}
                 className={`
-                  w-full flex items-center gap-3 px-4 py-3 rounded-xl font-manrope font-medium text-left transition-all duration-200 group
+                  w-full flex items-center cursor-pointer gap-3 px-4 py-3 rounded-xl font-manrope font-medium text-lg text-left transition-all duration-200 group
                   ${isActive 
                     ? 'bg-blue-600 text-white shadow-lg transform scale-[1.02]' 
                     : isHovered
-                      ? 'bg-blue-50 text-blue-700 transform scale-[1.01]'
-                      : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+                      ? ' text-blue-700 transform scale-[1.01]'
+                      : 'text-gray-700 hover:text-blue-600 '
                   }
                 `}
               >
@@ -106,13 +105,7 @@ export default function Sidebar({ onNavigate, currentPage = 'dashboard' }: Sideb
               </button>
             );
           })}
-           {/* Logout Section */}
-        <div className="mt-auto pt-20 border-t border-gray-200/30">
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-200 font-manrope font-medium">
-            <LogOut className="w-4 h-4" />
-            <span className="flex-1 text-left">Logout</span>
-          </button>
-        </div>
+         
         </div>
 
        

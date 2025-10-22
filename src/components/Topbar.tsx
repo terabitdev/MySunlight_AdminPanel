@@ -32,7 +32,7 @@ export default function Topbar({ currentPage = 'dashboard' }: TopbarProps) {
   };
 
   return (
-    <header className="h-16  border-b border-gray-400/50 shadow-lg">
+    <header className="h-20  border-b border-gray-400/50 shadow-lg">
       <div className="h-full flex items-center justify-between px-6">
         {/* Page Title */}
         <div className="flex items-center gap-4">
