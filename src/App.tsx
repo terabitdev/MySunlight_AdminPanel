@@ -1,38 +1,61 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import Sidebar from "./components/Sidebar";
+import Topbar from "./components/Topbar";
+import Dashboard from "./pages/Dashboard";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [currentPage, setCurrentPage] = useState('dashboard');
+
+  const handleNavigation = (page: string) => {
+    setCurrentPage(page);
+  };
+
+  const renderCurrentPage = () => {
+    switch (currentPage) {
+      case 'dashboard':
+        return <Dashboard />;
+      case 'analytics':
+        return (
+          <div className="p-8">
+            <h1 className="text-3xl font-david-libre font-bold text-gray-800 mb-4">Analytics</h1>
+            <p className="text-gray-600">Analytics page coming soon...</p>
+          </div>
+        );
+      case 'users':
+        return (
+          <div className="p-8">
+            <h1 className="text-3xl font-david-libre font-bold text-gray-800 mb-4">Users</h1>
+            <p className="text-gray-600">User management page coming soon...</p>
+          </div>
+        );
+      case 'settings':
+        return (
+          <div className="p-8">
+            <h1 className="text-3xl font-david-libre font-bold text-gray-800 mb-4">Settings</h1>
+            <p className="text-gray-600">Settings page coming soon...</p>
+          </div>
+        );
+      default:
+        return <Dashboard />;
+    }
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="min-h-screen w-full bg-custom-page-gradient text-gray-800 font-manrope overflow-hidden">
+      <div className="h-screen flex">
+        <Sidebar 
+          onNavigate={handleNavigation} 
+          currentPage={currentPage}
+        />
+        <div className="flex-1 flex flex-col min-w-0">
+          <Topbar currentPage={currentPage} />
+          <main className="flex-1 overflow-auto bg-gray-50/30">
+            {renderCurrentPage()}
+          </main>
+        </div>
       </div>
-      <h1>Vite + React</h1>
-      <div className="mt-4 p-4 bg-green-100 text-green-800 rounded">
-        Tailwind is working
-      </div>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;
