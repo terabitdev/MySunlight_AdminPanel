@@ -2,6 +2,7 @@ import { initializeApp, type FirebaseOptions } from "firebase/app";
 import { getAnalytics, isSupported } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 import type { Analytics } from "firebase/analytics";
 
 // Firebase configuration loaded from Vite env variables
@@ -23,6 +24,9 @@ export const auth = getAuth(firebaseApp);
 
 // Initialize Firestore and get a reference to the service
 export const db = getFirestore(firebaseApp);
+
+// Initialize Firebase Storage and get a reference to the service
+export const storage = getStorage(firebaseApp);
 
 // Initialize Firebase Analytics and get a reference to the service
 let analytics: Analytics | null = null;

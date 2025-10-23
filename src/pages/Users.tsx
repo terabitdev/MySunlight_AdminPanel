@@ -141,8 +141,8 @@ export default function Users() {
         </button>
       </div>
 
-   
-      {/* {searchQuery.trim() && (
+      {/* Search Results Banner */}
+      {searchQuery.trim() && (
         <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <div className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold font-manrope">
@@ -155,12 +155,12 @@ export default function Users() {
           </div>
           <button
             onClick={() => setSearchQuery('')}
-            className="text-blue-600 hover:text-blue-800 text-sm font-medium font-inter-tight underline"
+            className="text-blue-600 hover:text-blue-800 text-sm font-medium font-inter-tight transition-colors"
           >
             Clear search
           </button>
         </div>
-      )} */}
+      )}
 
       {/* Filter */}
       <UserFilter

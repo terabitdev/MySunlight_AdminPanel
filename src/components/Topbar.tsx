@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Search,
   ChevronDown,
   User,
   LogOut
 } from 'lucide-react';
-import { signOut } from 'firebase/auth';
+import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase';
 import ProfileSettingsModal from './modal/ProfileSettingsModal';
 import { useSearch } from '../context/SearchContext';
@@ -13,7 +13,23 @@ import { useSearch } from '../context/SearchContext';
 export default function Topbar() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [userPhoto, setUserPhoto] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string>('Admin User');
+  const [userEmail, setUserEmail] = useState<string>('admin@mysunlight.com');
   const { searchQuery, setSearchQuery, currentPage } = useSearch();
+
+  // Listen for auth state changes and update user info
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserPhoto(user.photoURL);
+        setUserName(user.displayName || 'Admin User');
+        setUserEmail(user.email || 'admin@mysunlight.com');
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleSignOut = async () => {
     try {
@@ -54,12 +70,22 @@ export default function Topbar() {
               aria-label="Profile menu"
               className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors duration-200"
             >
-              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center shadow-sm">
-                <span className="text-white text-sm font-bold">A</span>
-              </div>
+              {userPhoto ? (
+                <img
+                  src={userPhoto}
+                  alt="Profile"
+                  className="w-8 h-8 rounded-full object-cover shadow-sm"
+                />
+              ) : (
+                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center shadow-sm">
+                  <span className="text-white text-sm font-bold">
+                    {userName.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              )}
               <div className="text-left">
-                <p className="text-sm font-manrope font-medium text-gray-800">Admin User</p>
-                <p className="text-xs text-gray-600 font-inter-tight">admin@mysunlight.com</p>
+                <p className="text-sm font-manrope font-medium text-gray-800">{userName}</p>
+                <p className="text-xs text-gray-600 font-inter-tight">{userEmail}</p>
               </div>
               <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${showProfileMenu ? 'rotate-180' : ''}`} />
             </button>
