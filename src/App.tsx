@@ -5,7 +5,9 @@ import Sidebar from "./components/Sidebar";
 import Topbar from "./components/Topbar";
 import Dashboard from "./pages/Dashboard";
 import Users from "./pages/Users";
+import Analytics from "./pages/Analytics";
 import SignIn from "./pages/SignIn";
+import { SearchProvider } from "./context/SearchContext";
 
 function App() {
   const [currentPage, setCurrentPage] = useState('dashboard');
@@ -30,21 +32,9 @@ function App() {
       case 'dashboard':
         return <Dashboard />;
       case 'analytics':
-        return (
-          <div className="p-8">
-            <h1 className="text-3xl font-david-libre font-bold text-gray-800 mb-4">Analytics</h1>
-            <p className="text-gray-600">Analytics page coming soon...</p>
-          </div>
-        );
+        return <Analytics />;
       case 'users':
         return <Users />;
-      case 'settings':
-        return (
-          <div className="p-8">
-            <h1 className="text-3xl font-david-libre font-bold text-gray-800 mb-4">Settings</h1>
-            <p className="text-gray-600">Settings page coming soon...</p>
-          </div>
-        );
       default:
         return <Dashboard />;
     }
@@ -69,20 +59,22 @@ function App() {
 
   // Show main app if user is authenticated
   return (
-    <div className="min-h-screen  w-full bg-custom-page-gradient text-gray-800 font-manrope overflow-hidden">
-      <div className="h-screen flex">
-        <Sidebar 
-          onNavigate={handleNavigation} 
-          currentPage={currentPage}
-        />
-        <div className="flex-1 flex flex-col min-w-0">
-          <Topbar />
-          <main className="flex-1 overflow-auto bg-gray-50/30">
-            {renderCurrentPage()}
-          </main>
+    <SearchProvider>
+      <div className="min-h-screen  w-full bg-custom-page-gradient text-gray-800 font-manrope overflow-hidden">
+        <div className="h-screen flex">
+          <Sidebar
+            onNavigate={handleNavigation}
+            currentPage={currentPage}
+          />
+          <div className="flex-1 flex flex-col min-w-0">
+            <Topbar />
+            <main className="flex-1 overflow-auto bg-gray-50/30">
+              {renderCurrentPage()}
+            </main>
+          </div>
         </div>
       </div>
-    </div>
+    </SearchProvider>
   );
 }
 

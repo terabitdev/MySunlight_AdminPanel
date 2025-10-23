@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { fetchUsers, type User } from '../store/userSlice';
 import UserFilter from '../components/UserFilter';
 import Pagination from '../components/Pagination';
+import { useSearch } from '../context/SearchContext';
 
 export default function Users() {
   const dispatch = useAppDispatch();
@@ -11,18 +12,38 @@ export default function Users() {
   const [activeFilter, setActiveFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const { searchQuery, setSearchQuery, setCurrentPage: setSearchCurrentPage } = useSearch();
 
   useEffect(() => {
     dispatch(fetchUsers());
-  }, [dispatch]);
+    setSearchCurrentPage('users');
+  }, [dispatch, setSearchCurrentPage]);
 
-  // Filter users based on active status
+  // Filter users based on active status and search query
   const filteredUsers = useMemo(() => {
-    if (activeFilter === 'all') return users;
-    if (activeFilter === 'active') return users.filter((u: User) => u.isActive);
-    if (activeFilter === 'inactive') return users.filter((u: User) => !u.isActive);
-    return users;
-  }, [users, activeFilter]);
+    let filtered = users;
+
+    // Filter by active status
+    if (activeFilter === 'active') {
+      filtered = filtered.filter((u: User) => u.isActive);
+    } else if (activeFilter === 'inactive') {
+      filtered = filtered.filter((u: User) => !u.isActive);
+    }
+
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter((user: User) => {
+        return (
+          user.displayName?.toLowerCase().includes(query) ||
+          user.email?.toLowerCase().includes(query) ||
+          user.username?.toLowerCase().includes(query)
+        );
+      });
+    }
+
+    return filtered;
+  }, [users, activeFilter, searchQuery]);
 
   // Calculate counts for filter
   const activeCount = useMemo(() => users.filter((u: User) => u.isActive).length, [users]);
@@ -100,7 +121,14 @@ export default function Users() {
             Users Management
           </h1>
           <p className="text-gray-600 font-inter-tight mt-1">
-            Manage and monitor all registered users
+            {searchQuery.trim() ? (
+              <>
+                Showing <span className="font-semibold text-blue-600">{filteredUsers.length}</span> result
+                {filteredUsers.length !== 1 ? 's' : ''} for "{searchQuery}"
+              </>
+            ) : (
+              'Manage and monitor all registered users'
+            )}
           </p>
         </div>
         <button
@@ -112,6 +140,27 @@ export default function Users() {
           Refresh
         </button>
       </div>
+
+   
+      {/* {searchQuery.trim() && (
+        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <div className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold font-manrope">
+              {filteredUsers.length}
+            </div>
+            <p className="text-gray-700 font-inter-tight">
+              {filteredUsers.length === 1 ? 'user' : 'users'} found matching{' '}
+              <span className="font-semibold text-blue-700">"{searchQuery}"</span>
+            </p>
+          </div>
+          <button
+            onClick={() => setSearchQuery('')}
+            className="text-blue-600 hover:text-blue-800 text-sm font-medium font-inter-tight underline"
+          >
+            Clear search
+          </button>
+        </div>
+      )} */}
 
       {/* Filter */}
       <UserFilter

@@ -8,10 +8,12 @@ import {
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
 import ProfileSettingsModal from './modal/ProfileSettingsModal';
+import { useSearch } from '../context/SearchContext';
 
 export default function Topbar() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const { searchQuery, setSearchQuery, currentPage } = useSearch();
 
   const handleSignOut = async () => {
     try {
@@ -33,7 +35,9 @@ export default function Topbar() {
             </div>
             <input
               type="text"
-              placeholder="Search..."
+              placeholder={currentPage === 'users' ? 'Search users...' : 'Search...'}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 pr-4 py-2 w-48 sm:w-64 border border-gray-400/50 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm font-inter-tight"
             />
           </div>
