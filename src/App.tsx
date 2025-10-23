@@ -4,6 +4,7 @@ import { auth } from "./firebase";
 import Sidebar from "./components/Sidebar";
 import Topbar from "./components/Topbar";
 import Dashboard from "./pages/Dashboard";
+import Users from "./pages/Users";
 import SignIn from "./pages/SignIn";
 
 function App() {
@@ -36,12 +37,7 @@ function App() {
           </div>
         );
       case 'users':
-        return (
-          <div className="p-8">
-            <h1 className="text-3xl font-david-libre font-bold text-gray-800 mb-4">Users</h1>
-            <p className="text-gray-600">User management page coming soon...</p>
-          </div>
-        );
+        return <Users />;
       case 'settings':
         return (
           <div className="p-8">

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import {
   Search,
-  Bell,
   ChevronDown,
   User,
   LogOut
@@ -35,23 +34,14 @@ export default function Topbar() {
             <input
               type="text"
               placeholder="Search..."
-              className="pl-10 pr-4 py-2 w-48 sm:w-64 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm font-inter-tight"
+              className="pl-10 pr-4 py-2 w-48 sm:w-64 border border-gray-400/50 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm font-inter-tight"
             />
           </div>
         </div>
 
         {/* Right Section - Notifications, Profile */}
         <div className="flex items-center gap-4">
-          {/* Notifications */}
-          <button
-            aria-label="Notifications"
-            className="relative p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors duration-200"
-          >
-            <Bell className="h-5 w-5" />
-            <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-              3
-            </span>
-          </button>
+        
 
           {/* Profile Section */}
           <div className="relative">
