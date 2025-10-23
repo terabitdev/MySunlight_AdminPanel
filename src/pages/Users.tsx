@@ -172,7 +172,7 @@ export default function Users() {
       />
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200">
           <p className="text-sm text-gray-600 font-inter-tight">Total Users</p>
           <p className="text-2xl font-bold text-gray-800 font-manrope">{users.length}</p>
@@ -187,12 +187,6 @@ export default function Users() {
           <p className="text-sm text-gray-600 font-inter-tight">Verified Emails</p>
           <p className="text-2xl font-bold text-blue-600 font-manrope">
             {users.filter((u) => u.emailVerified).length}
-          </p>
-        </div>
-        <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200">
-          <p className="text-sm text-gray-600 font-inter-tight">Premium Users</p>
-          <p className="text-2xl font-bold text-purple-600 font-manrope">
-            {users.filter((u) => u.selectedPlan && u.selectedPlan !== 'free').length}
           </p>
         </div>
       </div>
@@ -210,9 +204,6 @@ export default function Users() {
                   Email
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider font-inter-tight">
-                  Plan
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider font-inter-tight">
                   Status
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider font-inter-tight">
@@ -223,7 +214,7 @@ export default function Users() {
             <tbody className="divide-y divide-gray-200">
               {paginatedUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-gray-500 font-inter-tight">
+                  <td colSpan={4} className="px-6 py-8 text-center text-gray-500 font-inter-tight">
                     No users found
                   </td>
                 </tr>
@@ -265,17 +256,6 @@ export default function Users() {
                           </span>
                         )}
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium font-inter-tight ${
-                          user.selectedPlan === 'yearly' || user.selectedPlan === 'monthly'
-                            ? 'bg-purple-100 text-purple-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}
-                      >
-                        {user.selectedPlan || 'Free'}
-                      </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
@@ -384,19 +364,6 @@ export default function Users() {
                       <CheckCircle className="h-4 w-4 text-green-500" />
                     </span>
                   )}
-                </div>
-
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600 font-inter-tight">Plan:</span>
-                  <span
-                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium font-inter-tight ${
-                      user.selectedPlan === 'yearly' || user.selectedPlan === 'monthly'
-                        ? 'bg-purple-100 text-purple-800'
-                        : 'bg-gray-100 text-gray-800'
-                    }`}
-                  >
-                    {user.selectedPlan || 'Free'}
-                  </span>
                 </div>
 
                 <div className="flex items-center justify-between text-sm pt-2 border-t border-gray-200">

@@ -93,7 +93,6 @@ export default function Analytics() {
     const totalUsers = users.length;
     const activeUsers = users.filter((u: User) => u.isActive).length;
     const verifiedUsers = users.filter((u: User) => u.emailVerified).length;
-    const premiumUsers = users.filter((u: User) => u.selectedPlan && u.selectedPlan !== 'free').length;
 
     // Calculate growth rate (compare with previous month)
     const selectedMonthIndex = months.indexOf(selectedMonth);
@@ -127,7 +126,6 @@ export default function Analytics() {
       totalUsers,
       activeUsers,
       verifiedUsers,
-      premiumUsers,
       currentMonthUsers,
       growthRate,
     };
@@ -167,7 +165,7 @@ export default function Analytics() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <div className="bg-linear-to-br from-blue-500 to-blue-600 rounded-lg shadow-md p-5 text-white">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-inter-tight opacity-90">Total Users</p>
@@ -184,17 +182,6 @@ export default function Analytics() {
           <p className="text-3xl font-bold font-manrope">{stats.activeUsers}</p>
           <p className="text-xs opacity-75 mt-1 font-inter-tight">
             {((stats.activeUsers / stats.totalUsers) * 100).toFixed(1)}% of total
-          </p>
-        </div>
-
-        <div className="bg-linear-to-br from-purple-500 to-purple-600 rounded-lg shadow-md p-5 text-white">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-inter-tight opacity-90">Premium Users</p>
-            <TrendingUp className="h-5 w-5 opacity-80" />
-          </div>
-          <p className="text-3xl font-bold font-manrope">{stats.premiumUsers}</p>
-          <p className="text-xs opacity-75 mt-1 font-inter-tight">
-            {((stats.premiumUsers / stats.totalUsers) * 100).toFixed(1)}% of total
           </p>
         </div>
 
