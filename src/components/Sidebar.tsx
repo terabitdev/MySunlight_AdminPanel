@@ -60,7 +60,7 @@ export default function Sidebar({ onNavigate, currentPage = 'dashboard', isMobil
       <aside
         className={`
           fixed md:static inset-y-0 left-0 z-50
-          w-72 h-full border-r border-gray-400/50 shadow-2xl bg-white
+          w-72 h-full border-r border-gray-400/50 shadow-2xl bg-custom-page-gradient
           transform transition-transform duration-300 ease-in-out
           ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
         `}
