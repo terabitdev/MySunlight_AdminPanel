@@ -80,7 +80,7 @@ function App() {
           currentPage={currentPage}
         />
         <div className="flex-1 flex flex-col min-w-0">
-          <Topbar currentPage={currentPage} />
+          <Topbar />
           <main className="flex-1 overflow-auto bg-gray-50/30">
             {renderCurrentPage()}
           </main>

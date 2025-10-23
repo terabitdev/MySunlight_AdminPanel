@@ -1,19 +1,21 @@
 import { useState, useEffect } from 'react';
 import { Eye, EyeOff, Mail, Lock, LogIn } from 'lucide-react';
-import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
+import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '../firebase';
 import { validateAdminCredentials, ADMIN_CONFIG } from '../utils/adminConfig';
 import { signInAdmin, initializeAdmin } from '../utils/adminAuth';
 
 const SignIn = () => {
- const [email, setEmail] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [resetEmailSent, setResetEmailSent] = useState(false);
-  const [resetError, setResetError] = useState('');// Initialize admin user on component mount
+  const [resetError, setResetError] = useState('');
+
+  // Initialize admin user on component mount
   useEffect(() => {
     initializeAdmin();
   }, []);
@@ -154,6 +156,7 @@ const SignIn = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
                 >
                   {showPassword ? (
@@ -171,6 +174,8 @@ const SignIn = () => {
                 <input
                   id="remember-me"
                   type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
                 <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">

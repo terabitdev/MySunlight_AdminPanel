@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { LayoutDashboard, BarChart3, Users, Settings, LogOut } from 'lucide-react';
+import { useState } from 'react';
+import { LayoutDashboard, BarChart3, Users, LogOut } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
 
@@ -22,23 +22,16 @@ export default function Sidebar({ onNavigate, currentPage = 'dashboard' }: Sideb
   const menuItems = [
     {
       id: 'dashboard',
-      label: 'Dashboard',
-      icon: '📊',
-      href: '/dashboard'
+      label: 'Dashboard'
     },
     {
       id: 'analytics',
-      label: 'Analytics',
-      icon: '📈',
-      href: '/analytics'
+      label: 'Analytics'
     },
     {
       id: 'users',
-      label: 'Users',
-      icon: '👥',
-      href: '/users'
-    },
-  
+      label: 'Users'
+    }
   ];
 
   const handleItemClick = (item: typeof menuItems[0]) => {
