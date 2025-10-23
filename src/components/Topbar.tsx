@@ -3,14 +3,19 @@ import {
   Search,
   ChevronDown,
   User,
-  LogOut
+  LogOut,
+  Menu
 } from 'lucide-react';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase';
 import ProfileSettingsModal from './modal/ProfileSettingsModal';
 import { useSearch } from '../context/SearchContext';
 
-export default function Topbar() {
+interface TopbarProps {
+  onToggleMobileMenu?: () => void;
+}
+
+export default function Topbar({ onToggleMobileMenu }: TopbarProps) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
@@ -41,10 +46,19 @@ export default function Topbar() {
   };
 
   return (
-    <header className="h-20  border-b border-gray-400/50 shadow-lg">
-      <div className="h-full flex items-center justify-between px-6">
-        {/* Search Bar */}
-        <div className="flex items-center gap-4">
+    <header className="h-16 md:h-20 border-b border-gray-400/50 shadow-lg">
+      <div className="h-full flex items-center justify-between px-3 md:px-6">
+        {/* Mobile Menu Button */}
+        <button
+          onClick={onToggleMobileMenu}
+          className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          aria-label="Toggle menu"
+        >
+          <Menu className="w-6 h-6 text-gray-700" />
+        </button>
+
+        {/* Search Bar - Hidden on mobile */}
+        <div className="hidden md:flex items-center gap-4">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search className="h-4 w-4 text-gray-400" />
@@ -54,13 +68,23 @@ export default function Topbar() {
               placeholder={currentPage === 'users' ? 'Search users...' : 'Search...'}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-2 w-48 sm:w-64 border border-gray-400/50 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm font-inter-tight"
+              className="pl-10 pr-4 py-2 w-48 lg:w-64 border border-gray-400/50 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm font-inter-tight"
             />
           </div>
         </div>
 
-        {/* Right Section - Notifications, Profile */}
-        <div className="flex items-center gap-4">
+        {/* Mobile Logo */}
+        <div className="flex md:hidden items-center gap-2">
+          <img
+            src="/assets/Logo.svg"
+            alt="MySunlight Logo"
+            className="h-8 w-8"
+          />
+          <h1 className="text-lg font-david-libre font-bold text-gray-800">MySunlight</h1>
+        </div>
+
+        {/* Right Section - Profile */}
+        <div className="flex items-center gap-2 md:gap-4">
         
 
           {/* Profile Section */}
@@ -68,7 +92,7 @@ export default function Topbar() {
             <button
               onClick={() => setShowProfileMenu(!showProfileMenu)}
               aria-label="Profile menu"
-              className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+              className="flex items-center gap-2 md:gap-3 px-2 md:px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors duration-200"
             >
               {userPhoto ? (
                 <img
@@ -83,7 +107,7 @@ export default function Topbar() {
                   </span>
                 </div>
               )}
-              <div className="text-left">
+              <div className="hidden sm:block text-left">
                 <p className="text-sm font-manrope font-medium text-gray-800">{userName}</p>
                 <p className="text-xs text-gray-600 font-inter-tight">{userEmail}</p>
               </div>

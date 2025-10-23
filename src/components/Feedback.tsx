@@ -24,11 +24,7 @@ interface DisplayFeedback extends FeedbackItem {
   docId: string;
 }
 
-interface FeedbackProps {
-  onRefresh?: () => void;
-}
-
-export default function Feedback({ onRefresh }: FeedbackProps) {
+export default function Feedback() {
   const [feedbacks, setFeedbacks] = useState<DisplayFeedback[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -96,14 +92,6 @@ export default function Feedback({ onRefresh }: FeedbackProps) {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-  };
-
-  const handleRefresh = () => {
-    setCurrentPage(1);
-    fetchFeedback();
-    if (onRefresh) {
-      onRefresh();
-    }
   };
 
   const formatDate = (timestamp: Timestamp) => {
@@ -209,7 +197,7 @@ export default function Feedback({ onRefresh }: FeedbackProps) {
               {/* Feedback Header */}
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="flex-shrink-0">
+                  <div className="shrink-0">
                     <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
                       <User className="h-5 w-5 text-white" />
                     </div>
@@ -235,7 +223,7 @@ export default function Feedback({ onRefresh }: FeedbackProps) {
                 </div>
 
                 {/* Rating and Date */}
-                <div className="flex items-center gap-4 flex-shrink-0">
+                <div className="flex items-center gap-4 shrink-0">
                   {renderStars(feedback.rating)}
                   <div className="flex items-center gap-1 text-xs text-gray-500 font-inter-tight">
                     <Calendar className="h-3 w-3" />
@@ -276,6 +264,3 @@ export default function Feedback({ onRefresh }: FeedbackProps) {
     </div>
   );
 }
-
-// Export the refresh function for external use
-export { type FeedbackProps };

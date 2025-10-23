@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { Users as UsersIcon, Mail, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
+import { Users as UsersIcon, Mail, CheckCircle, XCircle } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { fetchUsers, type User } from '../store/userSlice';
 import UserFilter from '../components/UserFilter';
@@ -57,10 +57,6 @@ export default function Users() {
     return filteredUsers.slice(startIndex, endIndex);
   }, [filteredUsers, currentPage, itemsPerPage]);
 
-  const handleRefresh = () => {
-    dispatch(fetchUsers());
-  };
-
   const handleFilterChange = (filter: 'all' | 'active' | 'inactive') => {
     setActiveFilter(filter);
     setCurrentPage(1); // Reset to first page when filter changes
@@ -101,7 +97,7 @@ export default function Users() {
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md">
           <p className="text-red-600 font-inter-tight">{error}</p>
           <button
-            onClick={handleRefresh}
+            onClick={() => dispatch(fetchUsers())}
             className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
           >
             Try Again
@@ -114,31 +110,21 @@ export default function Users() {
   return (
     <div className="p-6">
       {/* Header */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-david-libre font-bold text-gray-800 flex items-center gap-3">
-            <UsersIcon className="h-8 w-8 text-blue-600" />
-            Users Management
-          </h1>
-          <p className="text-gray-600 font-inter-tight mt-1">
-            {searchQuery.trim() ? (
-              <>
-                Showing <span className="font-semibold text-blue-600">{filteredUsers.length}</span> result
-                {filteredUsers.length !== 1 ? 's' : ''} for "{searchQuery}"
-              </>
-            ) : (
-              'Manage and monitor all registered users'
-            )}
-          </p>
-        </div>
-        <button
-          onClick={handleRefresh}
-          disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-manrope"
-        >
-          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-          Refresh
-        </button>
+      <div className="mb-6">
+        <h1 className="text-3xl font-david-libre font-bold text-gray-800 flex items-center gap-3">
+          <UsersIcon className="h-8 w-8 text-blue-600" />
+          Users Management
+        </h1>
+        <p className="text-gray-600 font-inter-tight mt-1">
+          {searchQuery.trim() ? (
+            <>
+              Showing <span className="font-semibold text-blue-600">{filteredUsers.length}</span> result
+              {filteredUsers.length !== 1 ? 's' : ''} for "{searchQuery}"
+            </>
+          ) : (
+            'Manage and monitor all registered users'
+          )}
+        </p>
       </div>
 
       {/* Search Results Banner */}

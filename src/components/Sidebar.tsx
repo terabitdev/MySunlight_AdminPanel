@@ -1,14 +1,16 @@
 import { useState } from 'react';
-import { LayoutDashboard, BarChart3, Users, LogOut } from 'lucide-react';
+import { LayoutDashboard, BarChart3, Users, LogOut, X } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
 
 interface SidebarProps {
   onNavigate?: (page: string) => void;
   currentPage?: string;
+  isMobileMenuOpen?: boolean;
+  onCloseMobileMenu?: () => void;
 }
 
-export default function Sidebar({ onNavigate, currentPage = 'dashboard' }: SidebarProps) {
+export default function Sidebar({ onNavigate, currentPage = 'dashboard', isMobileMenuOpen = false, onCloseMobileMenu }: SidebarProps) {
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
   const handleLogout = async () => {
@@ -38,12 +40,42 @@ export default function Sidebar({ onNavigate, currentPage = 'dashboard' }: Sideb
     if (onNavigate) {
       onNavigate(item.id);
     }
+    // Close mobile menu after navigation
+    if (onCloseMobileMenu) {
+      onCloseMobileMenu();
+    }
   };
 
   return (
-    <aside className="w-72 h-full border-r border-gray-400/50 shadow-2xl ">
-      {/* Header */}
-      <div className="py-3 px-6 h-20 border-b border-gray-400/50">
+    <>
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={onCloseMobileMenu}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={`
+          fixed md:static inset-y-0 left-0 z-50
+          w-72 h-full border-r border-gray-400/50 shadow-2xl bg-white
+          transform transition-transform duration-300 ease-in-out
+          ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+        `}
+      >
+        {/* Mobile Close Button */}
+        <button
+          onClick={onCloseMobileMenu}
+          className="absolute top-4 right-4 p-2 rounded-lg hover:bg-gray-100 md:hidden z-10"
+          aria-label="Close menu"
+        >
+          <X className="w-5 h-5 text-gray-600" />
+        </button>
+
+        {/* Header */}
+        <div className="py-3 px-6 h-16 md:h-20 border-b border-gray-400/50">
         <div className="flex items-center gap-3 mb-1">
           <div className="relative">
             <img 
@@ -119,6 +151,7 @@ export default function Sidebar({ onNavigate, currentPage = 'dashboard' }: Sideb
           </button>
         </div>
       </nav>
-    </aside>
+      </aside>
+    </>
   );
 }

@@ -13,6 +13,7 @@ function App() {
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -60,14 +61,16 @@ function App() {
   // Show main app if user is authenticated
   return (
     <SearchProvider>
-      <div className="min-h-screen  w-full bg-custom-page-gradient text-gray-800 font-manrope overflow-hidden">
+      <div className="min-h-screen w-full bg-custom-page-gradient text-gray-800 font-manrope overflow-hidden">
         <div className="h-screen flex">
           <Sidebar
             onNavigate={handleNavigation}
             currentPage={currentPage}
+            isMobileMenuOpen={isMobileMenuOpen}
+            onCloseMobileMenu={() => setIsMobileMenuOpen(false)}
           />
           <div className="flex-1 flex flex-col min-w-0">
-            <Topbar />
+            <Topbar onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
             <main className="flex-1 overflow-auto bg-gray-50/30">
               {renderCurrentPage()}
             </main>
