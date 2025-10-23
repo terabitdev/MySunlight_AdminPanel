@@ -1,18 +1,52 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Users as UsersIcon, Mail, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { fetchUsers } from '../store/userSlice';
+import { fetchUsers, type User } from '../store/userSlice';
+import UserFilter from '../components/UserFilter';
+import Pagination from '../components/Pagination';
 
 export default function Users() {
   const dispatch = useAppDispatch();
   const { users, loading, error } = useAppSelector((state) => state.users);
+  const [activeFilter, setActiveFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     dispatch(fetchUsers());
   }, [dispatch]);
 
+  // Filter users based on active status
+  const filteredUsers = useMemo(() => {
+    if (activeFilter === 'all') return users;
+    if (activeFilter === 'active') return users.filter((u: User) => u.isActive);
+    if (activeFilter === 'inactive') return users.filter((u: User) => !u.isActive);
+    return users;
+  }, [users, activeFilter]);
+
+  // Calculate counts for filter
+  const activeCount = useMemo(() => users.filter((u: User) => u.isActive).length, [users]);
+  const inactiveCount = useMemo(() => users.filter((u: User) => !u.isActive).length, [users]);
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const paginatedUsers = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredUsers.slice(startIndex, endIndex);
+  }, [filteredUsers, currentPage, itemsPerPage]);
+
   const handleRefresh = () => {
     dispatch(fetchUsers());
+  };
+
+  const handleFilterChange = (filter: 'all' | 'active' | 'inactive') => {
+    setActiveFilter(filter);
+    setCurrentPage(1); // Reset to first page when filter changes
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
   const formatDate = (timestamp: any) => {
@@ -79,6 +113,15 @@ export default function Users() {
         </button>
       </div>
 
+      {/* Filter */}
+      <UserFilter
+        activeFilter={activeFilter}
+        onFilterChange={handleFilterChange}
+        totalCount={users.length}
+        activeCount={activeCount}
+        inactiveCount={inactiveCount}
+      />
+
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200">
@@ -129,14 +172,14 @@ export default function Users() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {users.length === 0 ? (
+              {paginatedUsers.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-8 text-center text-gray-500 font-inter-tight">
                     No users found
                   </td>
                 </tr>
               ) : (
-                users.map((user) => (
+                paginatedUsers.map((user) => (
                   <tr key={user.uid} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
@@ -215,16 +258,25 @@ export default function Users() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          itemsPerPage={itemsPerPage}
+          totalItems={filteredUsers.length}
+        />
       </div>
 
       {/* Mobile Card View */}
       <div className="md:hidden space-y-4">
-        {users.length === 0 ? (
+        {filteredUsers.length === 0 ? (
           <div className="bg-white rounded-lg shadow-md p-6 text-center">
             <p className="text-gray-500 font-inter-tight">No users found</p>
           </div>
         ) : (
-          users.map((user) => (
+          filteredUsers.map((user) => (
             <div
               key={user.uid}
               className="bg-white rounded-lg shadow-md border border-gray-200 p-4"
