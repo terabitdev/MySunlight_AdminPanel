@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LayoutDashboard, BarChart3, Users, LogOut, X } from 'lucide-react';
+import { LayoutDashboard, BarChart3, Users, LogOut, X, Flag } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
 
@@ -24,14 +24,22 @@ export default function Sidebar({ onNavigate, currentPage = 'dashboard', isMobil
   const menuItems = [
     {
       id: 'dashboard',
+      icon: LayoutDashboard,
       label: 'Dashboard'
     },
     {
+      id: 'notifications',
+      icon: Flag,
+      label: 'Flagged Content'
+    },
+    {
       id: 'analytics',
+      icon: BarChart3,
       label: 'Analytics'
     },
     {
       id: 'users',
+      icon: Users,
       label: 'Users'
     }
   ];
@@ -119,9 +127,7 @@ export default function Sidebar({ onNavigate, currentPage = 'dashboard', isMobil
                     }
                   `}
                 >
-                  {item.id === 'dashboard' && <LayoutDashboard className="w-4 h-4" />}
-                  {item.id === 'analytics' && <BarChart3 className="w-4 h-4" />}
-                  {item.id === 'users' && <Users className="w-4 h-4" />}
+                  <item.icon className="w-4 h-4" />
                   <span className="flex-1">{item.label}</span>
                   {isActive && (
                     <div className="w-2 h-2 bg-white rounded-full shadow-sm"></div>

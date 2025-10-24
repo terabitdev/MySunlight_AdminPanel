@@ -6,6 +6,7 @@ import Topbar from "./components/Topbar";
 import Dashboard from "./pages/Dashboard";
 import Users from "./pages/Users";
 import Analytics from "./pages/Analytics";
+import Notifications from "./pages/Notifications";
 import SignIn from "./pages/SignIn";
 import { SearchProvider } from "./context/SearchContext";
 
@@ -32,6 +33,8 @@ function App() {
     switch (currentPage) {
       case 'dashboard':
         return <Dashboard />;
+      case 'notifications':
+        return <Notifications />;
       case 'analytics':
         return <Analytics />;
       case 'users':
