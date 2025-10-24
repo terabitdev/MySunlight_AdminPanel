@@ -296,9 +296,19 @@ export default function Notifications() {
                       Self-Harm Detected
                     </p>
                   </div>
-                  <p className="text-sm text-gray-800 font-inter-tight leading-relaxed pl-6">
-                    {notification.metadata.messageContent || notification.message || 'No message content available'}
-                  </p>
+                  <div className="pl-6 space-y-2">
+                    <p className="text-sm text-gray-800 font-inter-tight leading-relaxed">
+                      {notification.metadata.messageContent || notification.message || 'No message content available'}
+                    </p>
+                    {notification.metadata.postContent && (
+                      <div className="mt-3 pt-3 border-t border-red-300">
+                        <p className="text-xs font-medium text-red-800 mb-1">Post Content:</p>
+                        <p className="text-sm text-gray-700 font-inter-tight leading-relaxed">
+                          {notification.metadata.postContent}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Action Buttons */}

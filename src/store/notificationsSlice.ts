@@ -16,6 +16,7 @@ import { db } from '../firebase';
 export interface NotificationMetadata {
   groupName: string;
   messageContent: string;
+  postContent?: string;
   postId: string;
   groupId: string;
   profileImageUrl?: string;
@@ -85,6 +86,7 @@ export const fetchFlaggedNotifications = createAsyncThunk(
           metadata: {
             groupName: metadata.groupName || 'Unknown Group',
             messageContent: metadata.messageContent || '',
+            postContent: metadata.postContent || '',
             postId: postId,
             groupId: groupId, // Read from root level
             profileImageUrl: metadata.profileImageUrl || '',
