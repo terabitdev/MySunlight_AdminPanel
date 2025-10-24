@@ -1,27 +1,14 @@
 import { useEffect, useState, useMemo } from 'react';
 import { Flag, Trash2, CheckCircle, AlertTriangle, Users, MessageSquare, Calendar } from 'lucide-react';
-import { collection, query, where, getDocs, doc, deleteDoc, updateDoc, writeBatch, Timestamp } from 'firebase/firestore';
-import { db } from '../firebase';
+import { Timestamp } from 'firebase/firestore';
 import Toast, { type ToastType } from '../components/Toast';
-
-interface NotificationMetadata {
-  groupName: string;
-  messageContent: string;
-  postId: string;
-  groupId: string;
-  profileImageUrl?: string;
-  senderName: string;
-  username: string;
-}
-
-interface FlaggedNotification {
-  id: string;
-  message: string;
-  metadata: NotificationMetadata;
-  createdAt: Timestamp;
-  isRead: boolean;
-  type: string;
-}
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import {
+  fetchFlaggedNotifications,
+  approvePost,
+  deletePost,
+  type FlaggedNotification,
+} from '../store/notificationsSlice';
 
 interface ToastState {
   show: boolean;
@@ -30,11 +17,12 @@ interface ToastState {
 }
 
 export default function Notifications() {
-  const [notifications, setNotifications] = useState<FlaggedNotification[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
+  const { notifications, loading, error } = useAppSelector(
+    (state) => state.notifications
+  );
   const [toast, setToast] = useState<ToastState>({ show: false, message: '', type: 'success' });
-  const [processingId, setProcessingId] = useState<string | null>(null);
+  const [localProcessingId, setLocalProcessingId] = useState<string | null>(null);
 
   const showToast = (message: string, type: ToastType) => {
     setToast({ show: true, message, type });
@@ -44,105 +32,35 @@ export default function Notifications() {
     setToast({ show: false, message: '', type: 'success' });
   };
 
-  const fetchFlaggedNotifications = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const notificationsRef = collection(db, 'notifications');
-      const q = query(
-        notificationsRef,
-        where('type', '==', 'content_flag')
-      );
-      const querySnapshot = await getDocs(q);
-
-      const flaggedData: FlaggedNotification[] = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        flaggedData.push({
-          id: doc.id,
-          message: data.message || '',
-          metadata: data.metadata || {},
-          createdAt: data.createdAt,
-          isRead: data.isRead || false,
-          type: data.type,
-        });
-      });
-
-      // Sort by newest first
-      flaggedData.sort((a, b) => {
-        if (!a.createdAt || !b.createdAt) return 0;
-        return b.createdAt.toMillis() - a.createdAt.toMillis();
-      });
-
-      setNotifications(flaggedData);
-    } catch (err) {
-      console.error('Error fetching flagged notifications:', err);
-      setError('Failed to load flagged notifications');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchFlaggedNotifications();
-  }, []);
+    dispatch(fetchFlaggedNotifications());
+  }, [dispatch]);
 
   const handleApprove = async (notification: FlaggedNotification) => {
+    // Validate metadata before processing
     if (!notification.metadata.groupId || !notification.metadata.postId) {
-      showToast('Missing post information', 'error');
+      showToast('Missing post information. Cannot approve this notification.', 'error');
+      console.error('Missing metadata:', notification.metadata);
       return;
     }
 
     try {
-      setProcessingId(notification.id);
-
-      // 1. Unhide and unflag the post
-      const postRef = doc(
-        db,
-        'groups',
-        notification.metadata.groupId,
-        'posts',
-        notification.metadata.postId
-      );
-
-      await updateDoc(postRef, {
-        isHidden: false,
-        isFlagged: false,
-      });
-
-      // 2. Delete ALL flag notifications for this post
-      const flagNotificationsQuery = query(
-        collection(db, 'notifications'),
-        where('type', '==', 'content_flag'),
-        where('metadata.postId', '==', notification.metadata.postId)
-      );
-
-      const flagNotifications = await getDocs(flagNotificationsQuery);
-
-      const batch = writeBatch(db);
-      flagNotifications.docs.forEach((doc) => {
-        batch.delete(doc.ref);
-      });
-      await batch.commit();
-
-      // Update local state
-      setNotifications((prev) =>
-        prev.filter((n) => n.metadata.postId !== notification.metadata.postId)
-      );
-
+      setLocalProcessingId(notification.id);
+      await dispatch(approvePost(notification)).unwrap();
       showToast('Post approved successfully', 'success');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error approving post:', err);
-      showToast('Failed to approve post', 'error');
+      showToast(err || 'Failed to approve post', 'error');
     } finally {
-      setProcessingId(null);
+      setLocalProcessingId(null);
     }
   };
 
   const handleDelete = async (notification: FlaggedNotification) => {
+    // Validate metadata before processing
     if (!notification.metadata.groupId || !notification.metadata.postId) {
-      showToast('Missing post information', 'error');
+      showToast('Missing post information. Cannot delete this notification.', 'error');
+      console.error('Missing metadata:', notification.metadata);
       return;
     }
 
@@ -151,49 +69,18 @@ export default function Notifications() {
     }
 
     try {
-      setProcessingId(notification.id);
-
-      // 1. Delete the post
-      const postRef = doc(
-        db,
-        'groups',
-        notification.metadata.groupId,
-        'posts',
-        notification.metadata.postId
-      );
-
-      await deleteDoc(postRef);
-
-      // 2. Delete ALL flag notifications for this post
-      const flagNotificationsQuery = query(
-        collection(db, 'notifications'),
-        where('type', '==', 'content_flag'),
-        where('metadata.postId', '==', notification.metadata.postId)
-      );
-
-      const flagNotifications = await getDocs(flagNotificationsQuery);
-
-      const batch = writeBatch(db);
-      flagNotifications.docs.forEach((doc) => {
-        batch.delete(doc.ref);
-      });
-      await batch.commit();
-
-      // Update local state
-      setNotifications((prev) =>
-        prev.filter((n) => n.metadata.postId !== notification.metadata.postId)
-      );
-
+      setLocalProcessingId(notification.id);
+      await dispatch(deletePost(notification)).unwrap();
       showToast('Post deleted successfully', 'success');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error deleting post:', err);
-      showToast('Failed to delete post', 'error');
+      showToast(err || 'Failed to delete post', 'error');
     } finally {
-      setProcessingId(null);
+      setLocalProcessingId(null);
     }
   };
 
-  const formatDate = (timestamp: Timestamp) => {
+  const formatDate = (timestamp: Timestamp | null) => {
     if (!timestamp) return 'N/A';
     try {
       const date = timestamp.toDate();
@@ -221,6 +108,10 @@ export default function Notifications() {
     const grouped = new Map<string, FlaggedNotification[]>();
     notifications.forEach((notif) => {
       const postId = notif.metadata.postId;
+      if (!postId) {
+        console.warn('Notification missing postId:', notif);
+        return;
+      }
       if (!grouped.has(postId)) {
         grouped.set(postId, []);
       }
@@ -246,7 +137,7 @@ export default function Notifications() {
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md">
           <p className="text-red-600 font-inter-tight mb-3">{error}</p>
           <button
-            onClick={fetchFlaggedNotifications}
+            onClick={() => dispatch(fetchFlaggedNotifications())}
             className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
           >
             Try Again
@@ -294,89 +185,108 @@ export default function Notifications() {
         </div>
       ) : (
         <div className="space-y-4">
-          {groupedNotifications.map((notification) => (
-            <div
-              key={notification.id}
-              className="bg-white rounded-lg shadow-md border-l-4 border-red-500 p-6 hover:shadow-lg transition-shadow"
-            >
-              {/* Header */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3 flex-1">
-                  {notification.metadata.profileImageUrl ? (
-                    <img
-                      src={notification.metadata.profileImageUrl}
-                      alt={notification.metadata.senderName}
-                      className="w-12 h-12 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center">
-                      <span className="text-white text-lg font-bold">
-                        {notification.metadata.senderName?.charAt(0).toUpperCase() || 'U'}
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex-1">
+          {groupedNotifications.map((notification) => {
+            const isProcessing = localProcessingId === notification.id;
+            const hasValidMetadata = notification.metadata.groupId && notification.metadata.postId;
+
+            return (
+              <div
+                key={notification.id}
+                className="bg-white rounded-lg shadow-md border-l-4 border-red-500 p-6 hover:shadow-lg transition-shadow"
+              >
+                {/* Validation Warning */}
+                {!hasValidMetadata && (
+                  <div className="mb-4 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
                     <div className="flex items-center gap-2">
-                      <p className="font-semibold text-gray-900 font-manrope">
-                        {notification.metadata.senderName || 'Unknown User'}
+                      <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                      <p className="text-sm text-yellow-800 font-inter-tight">
+                        Warning: This notification has incomplete metadata.
+                        {!notification.metadata.groupId && ' Missing groupId.'}
+                        {!notification.metadata.postId && ' Missing postId.'}
                       </p>
-                      <span className="px-2 py-0.5 bg-red-100 text-red-800 text-xs font-medium rounded-full">
-                        CRITICAL
-                      </span>
                     </div>
-                    <p className="text-sm text-gray-600 font-inter-tight">
-                      @{notification.metadata.username || 'unknown'}
-                    </p>
+                  </div>
+                )}
+
+                {/* Header */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3 flex-1">
+                    {notification.metadata.profileImageUrl ? (
+                      <img
+                        src={notification.metadata.profileImageUrl}
+                        alt={notification.metadata.senderName}
+                        className="w-12 h-12 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center">
+                        <span className="text-white text-lg font-bold">
+                          {notification.metadata.senderName?.charAt(0).toUpperCase() || 'U'}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold text-gray-900 font-manrope">
+                          {notification.metadata.senderName || 'Unknown User'}
+                        </p>
+                        <span className="px-2 py-0.5 bg-red-100 text-red-800 text-xs font-medium rounded-full">
+                          CRITICAL
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600 font-inter-tight">
+                        @{notification.metadata.username || 'unknown'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-gray-500 font-inter-tight">
+                    <Calendar className="h-3 w-3" />
+                    <span>{formatDate(notification.createdAt)}</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-gray-500 font-inter-tight">
-                  <Calendar className="h-3 w-3" />
-                  <span>{formatDate(notification.createdAt)}</span>
+
+                {/* Group Info */}
+                <div className="mb-4 flex items-center gap-2 text-sm text-gray-700">
+                  <Users className="h-4 w-4 text-gray-500" />
+                  <span className="font-medium font-inter-tight">
+                    {notification.metadata.groupName || 'Unknown Group'}
+                  </span>
                 </div>
-              </div>
 
-              {/* Group Info */}
-              <div className="mb-4 flex items-center gap-2 text-sm text-gray-700">
-                <Users className="h-4 w-4 text-gray-500" />
-                <span className="font-medium font-inter-tight">
-                  {notification.metadata.groupName || 'Unknown Group'}
-                </span>
-              </div>
-
-              {/* Flagged Message */}
-              <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-4">
-                <div className="flex items-start gap-2 mb-2">
-                  <MessageSquare className="h-4 w-4 text-red-600 mt-1 shrink-0" />
-                  <p className="text-sm font-medium text-red-900 font-inter-tight">
-                    Self-Harm Detected
+                {/* Flagged Message */}
+                <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-4">
+                  <div className="flex items-start gap-2 mb-2">
+                    <MessageSquare className="h-4 w-4 text-red-600 mt-1 shrink-0" />
+                    <p className="text-sm font-medium text-red-900 font-inter-tight">
+                      Self-Harm Detected
+                    </p>
+                  </div>
+                  <p className="text-sm text-gray-800 font-inter-tight leading-relaxed pl-6">
+                    {notification.metadata.messageContent || 'No message content available'}
                   </p>
                 </div>
-                <p className="text-sm text-gray-800 font-inter-tight leading-relaxed pl-6">
-                  {notification.metadata.messageContent}
-                </p>
-              </div>
 
-              {/* Action Buttons */}
-              <div className="flex gap-3">
-                <button
-                  onClick={() => handleApprove(notification)}
-                  disabled={processingId === notification.id}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-manrope"
-                >
-                  <CheckCircle className="h-4 w-4" />
-                  {processingId === notification.id ? 'Processing...' : 'Approve'}
-                </button>
-                <button
-                  onClick={() => handleDelete(notification)}
-                  disabled={processingId === notification.id}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-manrope"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  {processingId === notification.id ? 'Processing...' : 'Delete'}
-                </button>
+                {/* Action Buttons */}
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => handleApprove(notification)}
+                    disabled={isProcessing || !hasValidMetadata}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-manrope"
+                  >
+                    <CheckCircle className="h-4 w-4" />
+                    {isProcessing ? 'Processing...' : 'Approve'}
+                  </button>
+                  <button
+                    onClick={() => handleDelete(notification)}
+                    disabled={isProcessing || !hasValidMetadata}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-manrope"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    {isProcessing ? 'Processing...' : 'Delete'}
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
