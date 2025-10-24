@@ -66,22 +66,27 @@ export const fetchFlaggedNotifications = createAsyncThunk(
         // Validate metadata structure - CRITICAL for approve/delete operations
         const metadata = data.metadata || {};
 
+        // groupId and message are at the root level of the notification document
+        const groupId = data.groupId || '';
+        const message = data.message || '';
+        const postId = metadata.postId || '';
+
         // Log missing fields for debugging
-        if (!metadata.postId) {
+        if (!postId) {
           console.warn(`Notification ${docSnap.id} missing metadata.postId`);
         }
-        if (!metadata.groupId) {
-          console.warn(`Notification ${docSnap.id} missing metadata.groupId`);
+        if (!groupId) {
+          console.warn(`Notification ${docSnap.id} missing groupId (root level)`);
         }
 
         flaggedData.push({
           id: docSnap.id,
-          message: data.message || '',
+          message: message, // Read from root level
           metadata: {
             groupName: metadata.groupName || 'Unknown Group',
             messageContent: metadata.messageContent || '',
-            postId: metadata.postId || '',
-            groupId: metadata.groupId || '',
+            postId: postId,
+            groupId: groupId, // Read from root level
             profileImageUrl: metadata.profileImageUrl || '',
             senderName: metadata.senderName || 'Unknown User',
             username: metadata.username || 'unknown',

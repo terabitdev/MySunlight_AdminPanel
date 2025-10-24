@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { Flag, Trash2, CheckCircle, AlertTriangle, Users, MessageSquare, Calendar } from 'lucide-react';
 import { Timestamp } from 'firebase/firestore';
 import Toast, { type ToastType } from '../components/Toast';
+import ConfirmDialog from '../components/ConfirmDialog';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import {
   fetchFlaggedNotifications,
@@ -16,6 +17,12 @@ interface ToastState {
   type: ToastType;
 }
 
+interface ConfirmState {
+  isOpen: boolean;
+  notification: FlaggedNotification | null;
+  action: 'approve' | 'delete' | null;
+}
+
 export default function Notifications() {
   const dispatch = useAppDispatch();
   const { notifications, loading, error } = useAppSelector(
@@ -23,6 +30,11 @@ export default function Notifications() {
   );
   const [toast, setToast] = useState<ToastState>({ show: false, message: '', type: 'success' });
   const [localProcessingId, setLocalProcessingId] = useState<string | null>(null);
+  const [confirmState, setConfirmState] = useState<ConfirmState>({
+    isOpen: false,
+    notification: null,
+    action: null,
+  });
 
   const showToast = (message: string, type: ToastType) => {
     setToast({ show: true, message, type });
@@ -36,7 +48,7 @@ export default function Notifications() {
     dispatch(fetchFlaggedNotifications());
   }, [dispatch]);
 
-  const handleApprove = async (notification: FlaggedNotification) => {
+  const handleApproveClick = (notification: FlaggedNotification) => {
     // Validate metadata before processing
     if (!notification.metadata.groupId || !notification.metadata.postId) {
       showToast('Missing post information. Cannot approve this notification.', 'error');
@@ -44,19 +56,14 @@ export default function Notifications() {
       return;
     }
 
-    try {
-      setLocalProcessingId(notification.id);
-      await dispatch(approvePost(notification)).unwrap();
-      showToast('Post approved successfully', 'success');
-    } catch (err: any) {
-      console.error('Error approving post:', err);
-      showToast(err || 'Failed to approve post', 'error');
-    } finally {
-      setLocalProcessingId(null);
-    }
+    setConfirmState({
+      isOpen: true,
+      notification,
+      action: 'approve',
+    });
   };
 
-  const handleDelete = async (notification: FlaggedNotification) => {
+  const handleDeleteClick = (notification: FlaggedNotification) => {
     // Validate metadata before processing
     if (!notification.metadata.groupId || !notification.metadata.postId) {
       showToast('Missing post information. Cannot delete this notification.', 'error');
@@ -64,20 +71,49 @@ export default function Notifications() {
       return;
     }
 
-    if (!confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
-      return;
-    }
+    setConfirmState({
+      isOpen: true,
+      notification,
+      action: 'delete',
+    });
+  };
+
+  const handleConfirm = async () => {
+    if (!confirmState.notification || !confirmState.action) return;
+
+    const notification = confirmState.notification;
+
+    // Close confirm dialog
+    setConfirmState({
+      isOpen: false,
+      notification: null,
+      action: null,
+    });
 
     try {
       setLocalProcessingId(notification.id);
-      await dispatch(deletePost(notification)).unwrap();
-      showToast('Post deleted successfully', 'success');
+
+      if (confirmState.action === 'approve') {
+        await dispatch(approvePost(notification)).unwrap();
+        showToast('Post approved successfully', 'success');
+      } else if (confirmState.action === 'delete') {
+        await dispatch(deletePost(notification)).unwrap();
+        showToast('Post deleted successfully', 'success');
+      }
     } catch (err: any) {
-      console.error('Error deleting post:', err);
-      showToast(err || 'Failed to delete post', 'error');
+      console.error(`Error ${confirmState.action}ing post:`, err);
+      showToast(err || `Failed to ${confirmState.action} post`, 'error');
     } finally {
       setLocalProcessingId(null);
     }
+  };
+
+  const handleCancel = () => {
+    setConfirmState({
+      isOpen: false,
+      notification: null,
+      action: null,
+    });
   };
 
   const formatDate = (timestamp: Timestamp | null) => {
@@ -261,14 +297,14 @@ export default function Notifications() {
                     </p>
                   </div>
                   <p className="text-sm text-gray-800 font-inter-tight leading-relaxed pl-6">
-                    {notification.metadata.messageContent || 'No message content available'}
+                    {notification.metadata.messageContent || notification.message || 'No message content available'}
                   </p>
                 </div>
 
                 {/* Action Buttons */}
                 <div className="flex gap-3">
                   <button
-                    onClick={() => handleApprove(notification)}
+                    onClick={() => handleApproveClick(notification)}
                     disabled={isProcessing || !hasValidMetadata}
                     className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-manrope"
                   >
@@ -276,7 +312,7 @@ export default function Notifications() {
                     {isProcessing ? 'Processing...' : 'Approve'}
                   </button>
                   <button
-                    onClick={() => handleDelete(notification)}
+                    onClick={() => handleDeleteClick(notification)}
                     disabled={isProcessing || !hasValidMetadata}
                     className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-manrope"
                   >
@@ -289,6 +325,22 @@ export default function Notifications() {
           })}
         </div>
       )}
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        isOpen={confirmState.isOpen}
+        title={confirmState.action === 'approve' ? 'Approve Post?' : 'Delete Post?'}
+        message={
+          confirmState.action === 'approve'
+            ? 'This will unhide the post and remove all flag notifications for all admins. The post will be visible to users again.'
+            : 'This will permanently delete the post and remove all flag notifications for all admins. This action cannot be undone.'
+        }
+        confirmText={confirmState.action === 'approve' ? 'Approve' : 'Delete'}
+        cancelText="Cancel"
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+        type={confirmState.action === 'approve' ? 'info' : 'danger'}
+      />
 
       {/* Toast Notification */}
       {toast.show && <Toast message={toast.message} type={toast.type} onClose={hideToast} />}
