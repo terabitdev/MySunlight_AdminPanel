@@ -3,6 +3,7 @@ import userReducer from './userSlice';
 import notificationsReducer from './notificationsSlice';
 import journalingReducer from './journalingSlice';
 import copingToolsReducer from './copingToolsSlice';
+import communityReducer from './communitySlice';
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     notifications: notificationsReducer,
     journaling: journalingReducer,
     copingTools: copingToolsReducer,
+    community: communityReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -20,6 +22,7 @@ export const store = configureStore({
           'notifications/fetchFlaggedNotifications/fulfilled',
           'journaling/fetchAnalytics/fulfilled',
           'copingTools/fetchAnalytics/fulfilled',
+          'community/fetchAnalytics/fulfilled',
         ],
         // Ignore these field paths in all actions
         ignoredActionPaths: ['payload.createdAt', 'payload.updatedAt', 'meta.arg.createdAt'],

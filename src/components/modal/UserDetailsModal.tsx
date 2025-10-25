@@ -2,6 +2,8 @@ import { X, User as UserIcon, Mail, Calendar, Shield } from 'lucide-react';
 import { type User } from '../../store/userSlice';
 import JournalingAnalytics from '../JournalingAnalytics';
 import DailyCopingToolsAnalytics from '../DailyCopingToolsAnalytics';
+import CommunityAnalytics from '../CommunityAnalytics';
+import RetentionMetrics from '../RetentionMetrics';
 
 interface UserDetailsModalProps {
   isOpen: boolean;
@@ -74,8 +76,10 @@ export default function UserDetailsModal({ isOpen, onClose, user }: UserDetailsM
 
           {/* Content */}
           <div className="overflow-y-auto flex-1 p-6">
+            
+
             {/* User Information Section */}
-            <div className="mb-6">
+            <div className="mb-6 border-t border-gray-200 pt-6">
               <h3 className="text-lg font-semibold text-gray-800 font-manrope mb-4 flex items-center gap-2">
                 <UserIcon className="h-5 w-5 text-blue-600" />
                 User Information
@@ -148,6 +152,11 @@ export default function UserDetailsModal({ isOpen, onClose, user }: UserDetailsM
               </div>
             </div>
 
+            {/* Retention Metrics Section */}
+            <div className="mb-6">
+              <RetentionMetrics user={user} />
+            </div>
+
             {/* Journaling Analytics Section */}
             <div className="border-t border-gray-200 pt-6">
               <JournalingAnalytics userId={user.uid} />
@@ -156,6 +165,11 @@ export default function UserDetailsModal({ isOpen, onClose, user }: UserDetailsM
             {/* Daily Coping Tools Analytics Section */}
             <div className="border-t border-gray-200 pt-6 mt-6">
               <DailyCopingToolsAnalytics userId={user.uid} />
+            </div>
+
+            {/* Community Analytics Section */}
+            <div className="border-t border-gray-200 pt-6 mt-6">
+              <CommunityAnalytics userId={user.uid} />
             </div>
           </div>
 

@@ -14,6 +14,12 @@ export interface User {
   emailVerified: boolean;
   username?: string;
   signInMethod?: string;
+  dateOfLastActivity?: any;
+  lastLoginAt?: any;
+  updatedAt?: any;
+  onboardingCompleted?: boolean;
+  firstName?: string;
+  lastName?: string;
 }
 
 interface UserState {
@@ -56,6 +62,12 @@ export const fetchUsers = createAsyncThunk(
           emailVerified: data.emailVerified ?? false,
           username: data.username || '',
           signInMethod: data.signInMethod || '',
+          dateOfLastActivity: data.dateOfLastActivity,
+          lastLoginAt: data.lastLoginAt,
+          updatedAt: data.updatedAt,
+          onboardingCompleted: data.onboardingCompleted ?? false,
+          firstName: data.firstName || '',
+          lastName: data.lastName || '',
         });
       });
 
