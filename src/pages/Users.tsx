@@ -1,10 +1,11 @@
 import { useEffect, useState, useMemo } from 'react';
-import { Users as UsersIcon, Mail, CheckCircle, XCircle } from 'lucide-react';
+import { Users as UsersIcon, Mail, CheckCircle, XCircle, Eye } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { fetchUsers, type User } from '../store/userSlice';
 import UserFilter from '../components/UserFilter';
 import Pagination from '../components/Pagination';
 import { useSearch } from '../context/SearchContext';
+import UserDetailsModal from '../components/modal/UserDetailsModal';
 
 export default function Users() {
   const dispatch = useAppDispatch();
@@ -13,6 +14,18 @@ export default function Users() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const { searchQuery, setSearchQuery, setCurrentPage: setSearchCurrentPage } = useSearch();
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [showUserDetails, setShowUserDetails] = useState(false);
+
+  const handleViewDetails = (user: User) => {
+    setSelectedUser(user);
+    setShowUserDetails(true);
+  };
+
+  const handleCloseDetails = () => {
+    setShowUserDetails(false);
+    setSelectedUser(null);
+  };
 
   useEffect(() => {
     dispatch(fetchUsers());
@@ -195,12 +208,15 @@ export default function Users() {
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider font-inter-tight">
                   Joined
                 </th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider font-inter-tight">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {paginatedUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-8 text-center text-gray-500 font-inter-tight">
+                  <td colSpan={5} className="px-6 py-8 text-center text-gray-500 font-inter-tight">
                     No users found
                   </td>
                 </tr>
@@ -266,6 +282,15 @@ export default function Users() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-inter-tight">
                       {formatDate(user.createdAt)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <button
+                        onClick={() => handleViewDetails(user)}
+                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors font-inter-tight"
+                      >
+                        <Eye className="h-4 w-4" />
+                        View Details
+                      </button>
                     </td>
                   </tr>
                 ))
@@ -356,11 +381,27 @@ export default function Users() {
                   <span className="text-gray-600 font-inter-tight">Joined:</span>
                   <span className="text-gray-900 font-inter-tight">{formatDate(user.createdAt)}</span>
                 </div>
+
+                {/* View Details Button */}
+                <button
+                  onClick={() => handleViewDetails(user)}
+                  className="w-full mt-3 inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors font-inter-tight"
+                >
+                  <Eye className="h-4 w-4" />
+                  View Details
+                </button>
               </div>
             </div>
           ))
         )}
       </div>
+
+      {/* User Details Modal */}
+      <UserDetailsModal
+        isOpen={showUserDetails}
+        onClose={handleCloseDetails}
+        user={selectedUser}
+      />
     </div>
   );
 }
