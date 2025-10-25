@@ -1,6 +1,7 @@
 import { X, User as UserIcon, Mail, Calendar, Shield } from 'lucide-react';
 import { type User } from '../../store/userSlice';
 import JournalingAnalytics from '../JournalingAnalytics';
+import DailyCopingToolsAnalytics from '../DailyCopingToolsAnalytics';
 
 interface UserDetailsModalProps {
   isOpen: boolean;
@@ -37,7 +38,7 @@ export default function UserDetailsModal({ isOpen, onClose, user }: UserDetailsM
 
       {/* Modal */}
       <div className="flex min-h-full items-center justify-center p-4">
-        <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
+        <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
           {/* Header */}
           <div className="bg-linear-to-r from-blue-600 to-blue-700 px-6 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -150,6 +151,11 @@ export default function UserDetailsModal({ isOpen, onClose, user }: UserDetailsM
             {/* Journaling Analytics Section */}
             <div className="border-t border-gray-200 pt-6">
               <JournalingAnalytics userId={user.uid} />
+            </div>
+
+            {/* Daily Coping Tools Analytics Section */}
+            <div className="border-t border-gray-200 pt-6 mt-6">
+              <DailyCopingToolsAnalytics userId={user.uid} />
             </div>
           </div>
 
