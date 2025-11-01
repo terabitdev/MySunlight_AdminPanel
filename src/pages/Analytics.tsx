@@ -8,7 +8,7 @@ import {
   Tooltip,
   CartesianGrid,
 } from 'recharts';
-import { ChevronDown, TrendingUp, Users, Calendar } from 'lucide-react';
+import { ChevronDown, TrendingUp, Users, Calendar, BookOpen } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { fetchUsers, type User } from '../store/userSlice';
 
@@ -94,6 +94,10 @@ export default function Analytics() {
     const activeUsers = users.filter((u: User) => u.isActive).length;
     const verifiedUsers = users.filter((u: User) => u.emailVerified).length;
 
+    // Calculate average journal entries per user
+    const totalJournalEntries = users.reduce((sum, user) => sum + (user.journalEntriesCount || 0), 0);
+    const averageJournalEntries = totalUsers > 0 ? totalJournalEntries / totalUsers : 0;
+
     // Calculate growth rate (compare with previous month)
     const selectedMonthIndex = months.indexOf(selectedMonth);
     const currentMonthUsers = users.filter((user: User) => {
@@ -128,6 +132,8 @@ export default function Analytics() {
       verifiedUsers,
       currentMonthUsers,
       growthRate,
+      averageJournalEntries,
+      totalJournalEntries,
     };
   }, [users, selectedMonth, selectedYear, months]);
 
@@ -165,7 +171,7 @@ export default function Analytics() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div className="bg-linear-to-br from-blue-500 to-blue-600 rounded-lg shadow-md p-5 text-white">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-inter-tight opacity-90">Total Users</p>
@@ -182,6 +188,19 @@ export default function Analytics() {
           <p className="text-3xl font-bold font-manrope">{stats.activeUsers}</p>
           <p className="text-xs opacity-75 mt-1 font-inter-tight">
             {((stats.activeUsers / stats.totalUsers) * 100).toFixed(1)}% of total
+          </p>
+        </div>
+
+        <div className="bg-linear-to-br from-purple-500 to-purple-600 rounded-lg shadow-md p-5 text-white">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-inter-tight opacity-90">Avg Journal Entries</p>
+            <BookOpen className="h-5 w-5 opacity-80" />
+          </div>
+          <p className="text-3xl font-bold font-manrope">
+            {stats.averageJournalEntries.toFixed(1)}
+          </p>
+          <p className="text-xs opacity-75 mt-1 font-inter-tight">
+            {stats.totalJournalEntries} total entries
           </p>
         </div>
 

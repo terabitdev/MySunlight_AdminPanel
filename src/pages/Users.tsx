@@ -173,17 +173,26 @@ export default function Users() {
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200">
-          <p className="text-sm text-gray-600 font-inter-tight">Total Users</p>
+          <div className="flex items-center gap-2 mb-1">
+            <UsersIcon className="h-4 w-4 text-gray-600" />
+            <p className="text-sm text-gray-600 font-inter-tight">Total Users</p>
+          </div>
           <p className="text-2xl font-bold text-gray-800 font-manrope">{users.length}</p>
         </div>
         <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200">
-          <p className="text-sm text-gray-600 font-inter-tight">Active Users</p>
-          <p className="text-2xl font-bold text-green-600 font-manrope">
-            {users.filter((u) => u.isActive).length}
+          <div className="flex items-center gap-2 mb-1">
+            <BookOpen className="h-4 w-4 text-purple-600" />
+            <p className="text-sm text-gray-600 font-inter-tight">Total Journal Entries</p>
+          </div>
+          <p className="text-2xl font-bold text-purple-600 font-manrope">
+            {users.reduce((sum, u) => sum + (u.journalEntriesCount || 0), 0)}
           </p>
         </div>
         <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200">
-          <p className="text-sm text-gray-600 font-inter-tight">Verified Emails</p>
+          <div className="flex items-center gap-2 mb-1">
+            <CheckCircle className="h-4 w-4 text-blue-600" />
+            <p className="text-sm text-gray-600 font-inter-tight">Verified Emails</p>
+          </div>
           <p className="text-2xl font-bold text-blue-600 font-manrope">
             {users.filter((u) => u.emailVerified).length}
           </p>
