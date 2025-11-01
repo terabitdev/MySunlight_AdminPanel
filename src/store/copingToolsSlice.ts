@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { getFunctions, httpsCallable } from 'firebase/functions';
+import { collection, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
+import { db } from '../firebase';
 
 interface DailyTipView {
   timestamp: string;
@@ -49,44 +50,105 @@ const initialState: CopingToolsState = {
   error: null,
 };
 
-// Async thunk to fetch coping tools analytics from Cloud Function
+// Async thunk to fetch coping tools analytics from Firestore
 export const fetchCopingToolsAnalytics = createAsyncThunk(
   'copingTools/fetchAnalytics',
   async (userId: string, { rejectWithValue }) => {
     try {
-      console.log(`Fetching coping tools analytics for user: ${userId}`);
+      // 1. Fetch daily tip views
+      const tipViewsRef = collection(db, 'analytics_daily_tips');
+      const tipViewsQuery = query(
+        tipViewsRef,
+        where('userId', '==', userId),
+        orderBy('timestamp', 'desc'),
+        limit(50)
+      );
 
-      // Call Cloud Function that queries BigQuery
-      const functions = getFunctions();
-      const getCopingToolsAnalytics = httpsCallable<
-        { userId: string },
-        CopingToolsStats
-      >(functions, 'getCopingToolsAnalytics');
+      const tipViewsSnapshot = await getDocs(tipViewsQuery);
+      const recentTipViews: DailyTipView[] = [];
+      const tipCountMap = new Map<string, number>();
 
-      const result = await getCopingToolsAnalytics({ userId });
-
-      console.log('Coping tools stats from BigQuery:', result.data);
-
-      return result.data;
-    } catch (error: any) {
-      console.error('Error fetching coping tools analytics:', error);
-
-      // Return empty stats if Cloud Function is not deployed or BigQuery is not set up
-      if (error.code === 'not-found' || error.code === 'failed-precondition') {
-        console.warn('Cloud Function not found. Returning empty stats.');
-        return {
-          totalTipsViewed: 0,
-          uniqueTipsViewed: 0,
-          breathingExercisesStarted: 0,
-          breathingExercisesCompleted: 0,
-          averageExerciseDuration: 0,
-          completionRate: 0,
-          recentTipViews: [],
-          recentBreathingExercises: [],
-          mostViewedTips: [],
+      tipViewsSnapshot.forEach((doc) => {
+        const data = doc.data();
+        const tipView: DailyTipView = {
+          timestamp: data.timestamp?.toDate ? data.timestamp.toDate().toISOString() : data.timestamp,
+          tipId: data.tipId || '',
+          userId: data.userId || userId,
         };
-      }
 
+        recentTipViews.push(tipView);
+
+        // Count tip views
+        const currentCount = tipCountMap.get(data.tipId) || 0;
+        tipCountMap.set(data.tipId, currentCount + 1);
+      });
+
+      const totalTipsViewed = recentTipViews.length;
+      const uniqueTipsViewed = tipCountMap.size;
+
+      // Get most viewed tips
+      const mostViewedTips = Array.from(tipCountMap.entries())
+        .map(([tipId, count]) => ({ tipId, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5);
+
+      // 2. Fetch breathing exercises
+      const breathingExercisesRef = collection(db, 'analytics_breathing_exercises');
+      const breathingQuery = query(
+        breathingExercisesRef,
+        where('userId', '==', userId),
+        orderBy('timestamp', 'desc'),
+        limit(50)
+      );
+
+      const breathingSnapshot = await getDocs(breathingQuery);
+      const recentBreathingExercises: BreathingExercise[] = [];
+      let breathingExercisesStarted = 0;
+      let breathingExercisesCompleted = 0;
+      let totalDuration = 0;
+      let durationCount = 0;
+
+      breathingSnapshot.forEach((doc) => {
+        const data = doc.data();
+        const exercise: BreathingExercise = {
+          timestamp: data.timestamp?.toDate ? data.timestamp.toDate().toISOString() : data.timestamp,
+          userId: data.userId || userId,
+          duration: data.duration,
+          status: data.status || 'started',
+        };
+
+        recentBreathingExercises.push(exercise);
+
+        if (exercise.status === 'started') {
+          breathingExercisesStarted++;
+        } else if (exercise.status === 'completed') {
+          breathingExercisesCompleted++;
+          if (exercise.duration) {
+            totalDuration += exercise.duration;
+            durationCount++;
+          }
+        }
+      });
+
+      const averageExerciseDuration = durationCount > 0 ? totalDuration / durationCount : 0;
+      const completionRate = breathingExercisesStarted > 0
+        ? (breathingExercisesCompleted / breathingExercisesStarted) * 100
+        : 0;
+
+      const stats: CopingToolsStats = {
+        totalTipsViewed,
+        uniqueTipsViewed,
+        breathingExercisesStarted,
+        breathingExercisesCompleted,
+        averageExerciseDuration,
+        completionRate,
+        recentTipViews: recentTipViews.slice(0, 10),
+        recentBreathingExercises: recentBreathingExercises.slice(0, 10),
+        mostViewedTips,
+      };
+
+      return stats;
+    } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to fetch coping tools analytics');
     }
   }

@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { Users as UsersIcon, Mail, CheckCircle, XCircle, Eye } from 'lucide-react';
+import { Users as UsersIcon, Mail, CheckCircle, Eye, BookOpen } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { fetchUsers, type User } from '../store/userSlice';
 import UserFilter from '../components/UserFilter';
@@ -203,7 +203,7 @@ export default function Users() {
                   Email
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider font-inter-tight">
-                  Status
+                  Journal Entries
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider font-inter-tight">
                   Joined
@@ -260,25 +260,14 @@ export default function Users() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium font-inter-tight ${
-                          user.isActive
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}
-                      >
-                        {user.isActive ? (
-                          <>
-                            <CheckCircle className="h-3 w-3" />
-                            Active
-                          </>
-                        ) : (
-                          <>
-                            <XCircle className="h-3 w-3" />
-                            Inactive
-                          </>
-                        )}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-blue-100 text-blue-700 font-bold text-sm">
+                          {user.journalEntriesCount || 0}
+                        </span>
+                        <span className="text-sm text-gray-600 font-inter-tight">
+                          {user.journalEntriesCount === 1 ? 'entry' : 'entries'}
+                        </span>
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-inter-tight">
                       {formatDate(user.createdAt)}
@@ -344,25 +333,11 @@ export default function Users() {
                     <p className="text-sm text-gray-500 font-inter-tight">@{user.username}</p>
                   )}
                 </div>
-                <span
-                  className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium font-inter-tight ${
-                    user.isActive
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
-                  }`}
-                >
-                  {user.isActive ? (
-                    <>
-                      <CheckCircle className="h-3 w-3" />
-                      Active
-                    </>
-                  ) : (
-                    <>
-                      <XCircle className="h-3 w-3" />
-                      Inactive
-                    </>
-                  )}
-                </span>
+                <div className="flex items-center gap-1">
+                  <span className="inline-flex items-center justify-center h-7 w-7 rounded-full bg-blue-100 text-blue-700 font-bold text-xs">
+                    {user.journalEntriesCount || 0}
+                  </span>
+                </div>
               </div>
 
               {/* User Details */}
@@ -377,7 +352,15 @@ export default function Users() {
                   )}
                 </div>
 
-                <div className="flex items-center justify-between text-sm pt-2 border-t border-gray-200">
+                <div className="flex items-center gap-2 text-sm pt-2 border-t border-gray-200">
+                  <BookOpen className="h-4 w-4 text-blue-600 shrink-0" />
+                  <span className="text-gray-600 font-inter-tight">Journal Entries:</span>
+                  <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-blue-100 text-blue-700 font-bold text-xs ml-auto">
+                    {user.journalEntriesCount || 0}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-600 font-inter-tight">Joined:</span>
                   <span className="text-gray-900 font-inter-tight">{formatDate(user.createdAt)}</span>
                 </div>

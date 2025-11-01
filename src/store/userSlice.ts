@@ -20,6 +20,7 @@ export interface User {
   onboardingCompleted?: boolean;
   firstName?: string;
   lastName?: string;
+  journalEntriesCount?: number;
 }
 
 interface UserState {
@@ -35,23 +36,33 @@ const initialState: UserState = {
 };
 
 // Async thunk to fetch users from Firestore
-export const fetchUsers = createAsyncThunk(
+export const fetchUsers = createAsyncThunk<User[], void>(
   'users/fetchUsers',
   async (_, { rejectWithValue }) => {
     try {
       const usersRef = collection(db, 'users');
       const querySnapshot = await getDocs(usersRef);
 
-      const users: User[] = [];
-      querySnapshot.forEach((doc) => {
+      // Use Promise.all to fetch journal entries count for all users in parallel
+      const userPromises = querySnapshot.docs.map(async (doc) => {
         const data = doc.data();
 
         // Filter out admin users
         if (data.type === 'Admin') {
-          return;
+          return null;
         }
 
-        users.push({
+        // Fetch journal entries count for this user
+        let journalEntriesCount = 0;
+        try {
+          const journalRef = collection(db, 'users', doc.id, 'journal_entries');
+          const journalSnapshot = await getDocs(journalRef);
+          journalEntriesCount = journalSnapshot.size;
+        } catch (error) {
+          // Silently handle errors for individual users
+        }
+
+        const user: User = {
           uid: data.uid || doc.id,
           email: data.email || '',
           displayName: data.displayName || '',
@@ -68,10 +79,18 @@ export const fetchUsers = createAsyncThunk(
           onboardingCompleted: data.onboardingCompleted ?? false,
           firstName: data.firstName || '',
           lastName: data.lastName || '',
-        });
+          journalEntriesCount: journalEntriesCount,
+        };
+
+        return user;
       });
 
-      return users;
+      const resolvedUsers = await Promise.all(userPromises);
+
+      // Filter out null values (admin users)
+      const filteredUsers = resolvedUsers.filter((user): user is User => user !== null);
+
+      return filteredUsers;
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to fetch users');
     }
