@@ -1,8 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
-import { Users as UsersIcon, Mail, CheckCircle, Eye, BookOpen } from 'lucide-react';
+import { Users as UsersIcon, Mail, CheckCircle, Eye, BookOpen, ChevronDown } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { fetchUsers, type User } from '../store/userSlice';
-import UserFilter from '../components/UserFilter';
 import Pagination from '../components/Pagination';
 import { useSearch } from '../context/SearchContext';
 import UserDetailsModal from '../components/modal/UserDetailsModal';
@@ -10,7 +9,8 @@ import UserDetailsModal from '../components/modal/UserDetailsModal';
 export default function Users() {
   const dispatch = useAppDispatch();
   const { users, loading, error } = useAppSelector((state) => state.users);
-  const [activeFilter, setActiveFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'week' | 'month' | 'year'>('all');
+  const [showDateDropdown, setShowDateDropdown] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const { searchQuery, setSearchQuery, setCurrentPage: setSearchCurrentPage } = useSearch();
@@ -32,15 +32,45 @@ export default function Users() {
     setSearchCurrentPage('users');
   }, [dispatch, setSearchCurrentPage]);
 
-  // Filter users based on active status and search query
+  // Helper function to check if date is within range
+  const isWithinDateRange = (timestamp: any, filter: string): boolean => {
+    if (!timestamp) return false;
+
+    try {
+      const userDate = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+      switch (filter) {
+        case 'today':
+          return userDate >= today;
+        case 'week':
+          const weekAgo = new Date(today);
+          weekAgo.setDate(weekAgo.getDate() - 7);
+          return userDate >= weekAgo;
+        case 'month':
+          const monthAgo = new Date(today);
+          monthAgo.setMonth(monthAgo.getMonth() - 1);
+          return userDate >= monthAgo;
+        case 'year':
+          const yearAgo = new Date(today);
+          yearAgo.setFullYear(yearAgo.getFullYear() - 1);
+          return userDate >= yearAgo;
+        default:
+          return true;
+      }
+    } catch {
+      return false;
+    }
+  };
+
+  // Filter users based on date and search query
   const filteredUsers = useMemo(() => {
     let filtered = users;
 
-    // Filter by active status
-    if (activeFilter === 'active') {
-      filtered = filtered.filter((u: User) => u.isActive);
-    } else if (activeFilter === 'inactive') {
-      filtered = filtered.filter((u: User) => !u.isActive);
+    // Filter by registration date
+    if (dateFilter !== 'all') {
+      filtered = filtered.filter((u: User) => isWithinDateRange(u.createdAt, dateFilter));
     }
 
     // Filter by search query
@@ -56,11 +86,13 @@ export default function Users() {
     }
 
     return filtered;
-  }, [users, activeFilter, searchQuery]);
+  }, [users, dateFilter, searchQuery]);
 
-  // Calculate counts for filter
-  const activeCount = useMemo(() => users.filter((u: User) => u.isActive).length, [users]);
-  const inactiveCount = useMemo(() => users.filter((u: User) => !u.isActive).length, [users]);
+  // Calculate counts for date filters
+  const todayCount = useMemo(() => users.filter((u: User) => isWithinDateRange(u.createdAt, 'today')).length, [users]);
+  const weekCount = useMemo(() => users.filter((u: User) => isWithinDateRange(u.createdAt, 'week')).length, [users]);
+  const monthCount = useMemo(() => users.filter((u: User) => isWithinDateRange(u.createdAt, 'month')).length, [users]);
+  const yearCount = useMemo(() => users.filter((u: User) => isWithinDateRange(u.createdAt, 'year')).length, [users]);
 
   // Pagination logic
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
@@ -70,9 +102,44 @@ export default function Users() {
     return filteredUsers.slice(startIndex, endIndex);
   }, [filteredUsers, currentPage, itemsPerPage]);
 
-  const handleFilterChange = (filter: 'all' | 'active' | 'inactive') => {
-    setActiveFilter(filter);
+  const handleFilterChange = (filter: 'all' | 'today' | 'week' | 'month' | 'year') => {
+    setDateFilter(filter);
+    setShowDateDropdown(false);
     setCurrentPage(1); // Reset to first page when filter changes
+  };
+
+  const getFilterLabel = (filter: string): string => {
+    switch (filter) {
+      case 'all':
+        return 'All Time';
+      case 'today':
+        return 'Today';
+      case 'week':
+        return 'Last 7 Days';
+      case 'month':
+        return 'Last Month';
+      case 'year':
+        return 'Last Year';
+      default:
+        return 'All Time';
+    }
+  };
+
+  const getFilterCount = (filter: string): number => {
+    switch (filter) {
+      case 'all':
+        return users.length;
+      case 'today':
+        return todayCount;
+      case 'week':
+        return weekCount;
+      case 'month':
+        return monthCount;
+      case 'year':
+        return yearCount;
+      default:
+        return users.length;
+    }
   };
 
   const handlePageChange = (page: number) => {
@@ -162,13 +229,71 @@ export default function Users() {
       )}
 
       {/* Filter */}
-      <UserFilter
-        activeFilter={activeFilter}
-        onFilterChange={handleFilterChange}
-        totalCount={users.length}
-        activeCount={activeCount}
-        inactiveCount={inactiveCount}
-      />
+      <div className="mb-6">
+        <div className="flex flex-col gap-3">
+          <span className="text-sm font-medium text-gray-700 font-inter-tight">Filter by Registration Date:</span>
+          <div className="relative">
+            <button
+              onClick={() => setShowDateDropdown(!showDateDropdown)}
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors min-w-[200px] font-inter-tight"
+            >
+              <span className="flex-1 text-left">{getFilterLabel(dateFilter)}</span>
+              <span className="text-xs text-gray-500">({getFilterCount(dateFilter)})</span>
+              <ChevronDown className="h-4 w-4 text-gray-500" />
+            </button>
+
+            {showDateDropdown && (
+              <div className="absolute left-0 mt-2 w-full max-w-[200px] bg-white border border-gray-200 rounded-lg shadow-lg z-20">
+                <button
+                  onClick={() => handleFilterChange('all')}
+                  className={`block w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors font-inter-tight ${
+                    dateFilter === 'all' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-900'
+                  }`}
+                >
+                  <span>All Time</span>
+                  <span className="text-xs text-gray-500 ml-2">({users.length})</span>
+                </button>
+                <button
+                  onClick={() => handleFilterChange('today')}
+                  className={`block w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors font-inter-tight ${
+                    dateFilter === 'today' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-900'
+                  }`}
+                >
+                  <span>Today</span>
+                  <span className="text-xs text-gray-500 ml-2">({todayCount})</span>
+                </button>
+                <button
+                  onClick={() => handleFilterChange('week')}
+                  className={`block w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors font-inter-tight ${
+                    dateFilter === 'week' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-900'
+                  }`}
+                >
+                  <span>Last 7 Days</span>
+                  <span className="text-xs text-gray-500 ml-2">({weekCount})</span>
+                </button>
+                <button
+                  onClick={() => handleFilterChange('month')}
+                  className={`block w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors font-inter-tight ${
+                    dateFilter === 'month' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-900'
+                  }`}
+                >
+                  <span>Last Month</span>
+                  <span className="text-xs text-gray-500 ml-2">({monthCount})</span>
+                </button>
+                <button
+                  onClick={() => handleFilterChange('year')}
+                  className={`block w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors font-inter-tight ${
+                    dateFilter === 'year' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-900'
+                  }`}
+                >
+                  <span>Last Year</span>
+                  <span className="text-xs text-gray-500 ml-2">({yearCount})</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
