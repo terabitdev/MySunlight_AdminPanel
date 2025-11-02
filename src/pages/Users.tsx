@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { Users as UsersIcon, Mail, CheckCircle, Eye, BookOpen, ChevronDown } from 'lucide-react';
+import { Users as UsersIcon, Mail, CheckCircle, Eye, BookOpen, ChevronDown, Filter } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { fetchUsers, type User } from '../store/userSlice';
 import Pagination from '../components/Pagination';
@@ -230,8 +230,11 @@ export default function Users() {
 
       {/* Filter */}
       <div className="mb-6">
-        <div className="flex flex-col gap-3">
-          <span className="text-sm font-medium text-gray-700 font-inter-tight">Filter by Registration Date:</span>
+        <div className="flex flex-col  gap-3">
+          <div className="flex items-center gap-2">
+            <Filter className="h-5 w-5 text-gray-600" />
+            <span className="text-sm font-medium text-gray-700 font-inter-tight">Filter by Joined Date:</span>
+          </div>
           <div className="relative">
             <button
               onClick={() => setShowDateDropdown(!showDateDropdown)}
