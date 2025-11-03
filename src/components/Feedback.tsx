@@ -176,7 +176,7 @@ export default function Feedback() {
         <div>
           <h2 className="text-xl font-semibold text-gray-900 font-manrope flex items-center gap-2">
             <MessageSquare className="h-5 w-5 text-blue-600" />
-            User Feedback
+            {/* User Feedback */} To Feedback Recevied
           </h2>
           <p className="text-sm text-gray-600 font-inter-tight mt-1">
             {feedbacks.length} feedback{feedbacks.length !== 1 ? 's' : ''} received
