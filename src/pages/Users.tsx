@@ -1,5 +1,13 @@
 import { useEffect, useState, useMemo } from 'react';
-import { Users as UsersIcon, Mail, CheckCircle, Eye, BookOpen, ChevronDown, Filter } from 'lucide-react';
+import {
+  Users as UsersIcon,
+  Mail,
+  CheckCircle,
+  Eye,
+  BookOpen,
+  ChevronDown,
+  Filter,
+} from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { fetchUsers, type User } from '../store/userSlice';
 import Pagination from '../components/Pagination';
@@ -89,10 +97,22 @@ export default function Users() {
   }, [users, dateFilter, searchQuery]);
 
   // Calculate counts for date filters
-  const todayCount = useMemo(() => users.filter((u: User) => isWithinDateRange(u.createdAt, 'today')).length, [users]);
-  const weekCount = useMemo(() => users.filter((u: User) => isWithinDateRange(u.createdAt, 'week')).length, [users]);
-  const monthCount = useMemo(() => users.filter((u: User) => isWithinDateRange(u.createdAt, 'month')).length, [users]);
-  const yearCount = useMemo(() => users.filter((u: User) => isWithinDateRange(u.createdAt, 'year')).length, [users]);
+  const todayCount = useMemo(
+    () => users.filter((u: User) => isWithinDateRange(u.createdAt, 'today')).length,
+    [users]
+  );
+  const weekCount = useMemo(
+    () => users.filter((u: User) => isWithinDateRange(u.createdAt, 'week')).length,
+    [users]
+  );
+  const monthCount = useMemo(
+    () => users.filter((u: User) => isWithinDateRange(u.createdAt, 'month')).length,
+    [users]
+  );
+  const yearCount = useMemo(
+    () => users.filter((u: User) => isWithinDateRange(u.createdAt, 'year')).length,
+    [users]
+  );
 
   // Pagination logic
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
@@ -193,12 +213,13 @@ export default function Users() {
       <div className="mb-6">
         <h1 className="text-3xl font-david-libre font-bold text-gray-800 flex items-center gap-3">
           <UsersIcon className="h-8 w-8 text-blue-600" />
-          Users Management
+          Users Analytics
         </h1>
         <p className="text-gray-600 font-inter-tight mt-1">
           {searchQuery.trim() ? (
             <>
-              Showing <span className="font-semibold text-blue-600">{filteredUsers.length}</span> result
+              Showing <span className="font-semibold text-blue-600">{filteredUsers.length}</span>{' '}
+              result
               {filteredUsers.length !== 1 ? 's' : ''} for "{searchQuery}"
             </>
           ) : (
@@ -233,7 +254,9 @@ export default function Users() {
         <div className="flex flex-col  gap-3">
           <div className="flex items-center gap-2">
             <Filter className="h-5 w-5 text-gray-600" />
-            <span className="text-sm font-medium text-gray-700 font-inter-tight">Filter by Joined Date:</span>
+            <span className="text-sm font-medium text-gray-700 font-inter-tight">
+              Filter by Joined Date:
+            </span>
           </div>
           <div className="relative">
             <button
@@ -250,7 +273,9 @@ export default function Users() {
                 <button
                   onClick={() => handleFilterChange('all')}
                   className={`block w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors font-inter-tight ${
-                    dateFilter === 'all' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-900'
+                    dateFilter === 'all'
+                      ? 'bg-blue-50 text-blue-600 font-semibold'
+                      : 'text-gray-900'
                   }`}
                 >
                   <span>All Time</span>
@@ -259,7 +284,9 @@ export default function Users() {
                 <button
                   onClick={() => handleFilterChange('today')}
                   className={`block w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors font-inter-tight ${
-                    dateFilter === 'today' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-900'
+                    dateFilter === 'today'
+                      ? 'bg-blue-50 text-blue-600 font-semibold'
+                      : 'text-gray-900'
                   }`}
                 >
                   <span>Today</span>
@@ -268,7 +295,9 @@ export default function Users() {
                 <button
                   onClick={() => handleFilterChange('week')}
                   className={`block w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors font-inter-tight ${
-                    dateFilter === 'week' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-900'
+                    dateFilter === 'week'
+                      ? 'bg-blue-50 text-blue-600 font-semibold'
+                      : 'text-gray-900'
                   }`}
                 >
                   <span>Last 7 Days</span>
@@ -277,7 +306,9 @@ export default function Users() {
                 <button
                   onClick={() => handleFilterChange('month')}
                   className={`block w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors font-inter-tight ${
-                    dateFilter === 'month' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-900'
+                    dateFilter === 'month'
+                      ? 'bg-blue-50 text-blue-600 font-semibold'
+                      : 'text-gray-900'
                   }`}
                 >
                   <span>Last Month</span>
@@ -286,7 +317,9 @@ export default function Users() {
                 <button
                   onClick={() => handleFilterChange('year')}
                   className={`block w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors font-inter-tight ${
-                    dateFilter === 'year' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-900'
+                    dateFilter === 'year'
+                      ? 'bg-blue-50 text-blue-600 font-semibold'
+                      : 'text-gray-900'
                   }`}
                 >
                   <span>Last Year</span>
@@ -380,7 +413,9 @@ export default function Users() {
                             {user.displayName || 'Unknown'}
                           </p>
                           {user.username && (
-                            <p className="text-xs text-gray-500 font-inter-tight">@{user.username}</p>
+                            <p className="text-xs text-gray-500 font-inter-tight">
+                              @{user.username}
+                            </p>
                           )}
                         </div>
                       </div>
@@ -499,7 +534,9 @@ export default function Users() {
 
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-600 font-inter-tight">Joined:</span>
-                  <span className="text-gray-900 font-inter-tight">{formatDate(user.createdAt)}</span>
+                  <span className="text-gray-900 font-inter-tight">
+                    {formatDate(user.createdAt)}
+                  </span>
                 </div>
 
                 {/* View Details Button */}
@@ -517,11 +554,7 @@ export default function Users() {
       </div>
 
       {/* User Details Modal */}
-      <UserDetailsModal
-        isOpen={showUserDetails}
-        onClose={handleCloseDetails}
-        user={selectedUser}
-      />
+      <UserDetailsModal isOpen={showUserDetails} onClose={handleCloseDetails} user={selectedUser} />
     </div>
   );
 }

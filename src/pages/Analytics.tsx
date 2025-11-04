@@ -24,8 +24,18 @@ export default function Analytics() {
   const { users, loading } = useAppSelector((state) => state.users);
 
   const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December',
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
   ];
 
   const getCurrentMonth = () => months[new Date().getMonth()];
@@ -81,8 +91,8 @@ export default function Analytics() {
     });
 
     // Calculate percentages
-    const maxCount = Math.max(...monthlyData.map(d => d.count), 1);
-    return monthlyData.map(d => ({
+    const maxCount = Math.max(...monthlyData.map((d) => d.count), 1);
+    return monthlyData.map((d) => ({
       ...d,
       percentage: (d.count / maxCount) * 100,
     }));
@@ -95,7 +105,10 @@ export default function Analytics() {
     const verifiedUsers = users.filter((u: User) => u.emailVerified).length;
 
     // Calculate average journal entries per user
-    const totalJournalEntries = users.reduce((sum, user) => sum + (user.journalEntriesCount || 0), 0);
+    const totalJournalEntries = users.reduce(
+      (sum, user) => sum + (user.journalEntriesCount || 0),
+      0
+    );
     const averageJournalEntries = totalUsers > 0 ? totalJournalEntries / totalUsers : 0;
 
     // Calculate growth rate (compare with previous month)
@@ -122,9 +135,12 @@ export default function Analytics() {
       }
     }).length;
 
-    const growthRate = prevMonthUsers === 0
-      ? (currentMonthUsers > 0 ? 100 : 0)
-      : ((currentMonthUsers - prevMonthUsers) / prevMonthUsers) * 100;
+    const growthRate =
+      prevMonthUsers === 0
+        ? currentMonthUsers > 0
+          ? 100
+          : 0
+        : ((currentMonthUsers - prevMonthUsers) / prevMonthUsers) * 100;
 
     return {
       totalUsers,
@@ -163,7 +179,8 @@ export default function Analytics() {
       <div className="mb-6">
         <h1 className="text-3xl font-david-libre font-bold text-gray-800 flex items-center gap-3">
           <TrendingUp className="h-8 w-8 text-blue-600" />
-          Analytics Dashboard
+          Dashboard
+          {/* Analytics Dashboard */}
         </h1>
         <p className="text-gray-600 font-inter-tight mt-1">
           Track user growth and engagement metrics
@@ -204,13 +221,18 @@ export default function Analytics() {
           </p>
         </div>
 
-        <div className={`bg-linear-to-br ${stats.growthRate >= 0 ? 'from-emerald-500 to-emerald-600' : 'from-red-500 to-red-600'} rounded-lg shadow-md p-5 text-white`}>
+        <div
+          className={`bg-linear-to-br ${
+            stats.growthRate >= 0 ? 'from-emerald-500 to-emerald-600' : 'from-red-500 to-red-600'
+          } rounded-lg shadow-md p-5 text-white`}
+        >
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-inter-tight opacity-90">Growth Rate</p>
             <TrendingUp className="h-5 w-5 opacity-80" />
           </div>
           <p className="text-3xl font-bold font-manrope">
-            {stats.growthRate > 0 ? '+' : ''}{stats.growthRate.toFixed(1)}%
+            {stats.growthRate > 0 ? '+' : ''}
+            {stats.growthRate.toFixed(1)}%
           </p>
           <p className="text-xs opacity-75 mt-1 font-inter-tight">vs previous month</p>
         </div>
@@ -317,10 +339,7 @@ export default function Analytics() {
         <div className="h-96 w-full">
           {chartData.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart
-                data={chartData}
-                margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
-              >
+              <AreaChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
                 <defs>
                   <linearGradient id="customGradient" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#D3E4E8" stopOpacity={0.8} />
@@ -399,12 +418,7 @@ export default function Analytics() {
                             stroke="#2563eb"
                             strokeWidth={3}
                           />
-                          <circle
-                            cx={props.cx}
-                            cy={props.cy}
-                            r={5}
-                            fill="#2563eb"
-                          />
+                          <circle cx={props.cx} cy={props.cy} r={5} fill="#2563eb" />
                         </g>
                       );
                     }
