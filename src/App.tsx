@@ -15,7 +15,6 @@ function App() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -72,13 +71,10 @@ function App() {
             currentPage={currentPage}
             isMobileMenuOpen={isMobileMenuOpen}
             onCloseMobileMenu={() => setIsMobileMenuOpen(false)}
-            isCollapsed={isSidebarCollapsed}
-            onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
           />
           <div className="flex-1 flex flex-col min-w-0">
             <Topbar
               onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              currentPage={currentPage}
             />
             <main className="flex-1 overflow-auto bg-gray-50/30">{renderCurrentPage()}</main>
           </div>
