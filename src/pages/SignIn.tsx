@@ -168,8 +168,8 @@ const SignIn = () => {
               </div>
             </div>
 
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between">
+            {/* Remember Me & Forgot Password - Hidden as per request */}
+            {/* <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <input
                   id="remember-me"
@@ -189,7 +189,7 @@ const SignIn = () => {
               >
                 Forgot password?
               </button>
-            </div>
+            </div> */}
 
             {/* Sign In Button */}
             <button
