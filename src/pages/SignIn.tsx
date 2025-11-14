@@ -1,19 +1,19 @@
 import { useState, useEffect } from 'react';
 import { Eye, EyeOff, Mail, Lock, LogIn } from 'lucide-react';
-import { sendPasswordResetEmail } from 'firebase/auth';
-import { auth } from '../firebase';
-import { validateAdminCredentials, ADMIN_CONFIG } from '../utils/adminConfig';
+// import { sendPasswordResetEmail } from 'firebase/auth'; // Hidden as per request
+// import { auth } from '../firebase'; // Hidden as per request
+import { validateAdminCredentials } from '../utils/adminConfig';
 import { signInAdmin, initializeAdmin } from '../utils/adminAuth';
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  // const [rememberMe, setRememberMe] = useState(false); // Hidden as per request
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [resetEmailSent, setResetEmailSent] = useState(false);
-  const [resetError, setResetError] = useState('');
+  // const [resetEmailSent, setResetEmailSent] = useState(false); // Hidden as per request
+  // const [resetError, setResetError] = useState(''); // Hidden as per request
 
   // Initialize admin user on component mount
   useEffect(() => {
@@ -24,8 +24,8 @@ const SignIn = () => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
-    setResetError('');
-    setResetEmailSent(false);
+    // setResetError(''); // Hidden as per request
+    // setResetEmailSent(false); // Hidden as per request
     
     // Validate admin credentials
     if (!validateAdminCredentials(email, password)) {
@@ -47,26 +47,27 @@ const SignIn = () => {
     }
   };
 
-  const handleForgotPassword = async () => {
-    if (!email) {
-      setResetError('Please enter your email address first.');
-      return;
-    }
+  // Hidden as per request
+  // const handleForgotPassword = async () => {
+  //   if (!email) {
+  //     setResetError('Please enter your email address first.');
+  //     return;
+  //   }
 
-    // Validate that the email is the admin email
-    if (email !== ADMIN_CONFIG.email) {
-      setResetError('Password reset is only available for the admin email.');
-      return;
-    }
+  //   // Validate that the email is the admin email
+  //   if (email !== ADMIN_CONFIG.email) {
+  //     setResetError('Password reset is only available for the admin email.');
+  //     return;
+  //   }
 
-    try {
-      setResetError('');
-      await sendPasswordResetEmail(auth, email);
-      setResetEmailSent(true);
-    } catch (error: any) {
-      setResetError(error.message || 'Failed to send password reset email.');
-    }
-  };
+  //   try {
+  //     setResetError('');
+  //     await sendPasswordResetEmail(auth, email);
+  //     setResetEmailSent(true);
+  //   } catch (error: any) {
+  //     setResetError(error.message || 'Failed to send password reset email.');
+  //   }
+  // };
 
   return (
     <div className="min-h-screen w-full bg-custom-page-gradient text-gray-800 font-manrope flex items-center justify-center p-4">
@@ -97,21 +98,21 @@ const SignIn = () => {
             </div>
           )}
 
-          {/* Password Reset Success Message */}
-          {resetEmailSent && (
+          {/* Password Reset Success Message - Hidden as per request */}
+          {/* {resetEmailSent && (
             <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
               <p className="text-sm text-green-600">
                 Password reset email sent! Check your inbox and follow the instructions to reset your password.
               </p>
             </div>
-          )}
+          )} */}
 
-          {/* Password Reset Error Message */}
-          {resetError && (
+          {/* Password Reset Error Message - Hidden as per request */}
+          {/* {resetError && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-sm text-red-600">{resetError}</p>
             </div>
-          )}
+          )} */}
           
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Field */}
