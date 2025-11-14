@@ -1,20 +1,21 @@
-import { useState, useEffect } from "react";
-import { onAuthStateChanged, type User } from "firebase/auth";
-import { auth } from "./firebase";
-import Sidebar from "./components/Sidebar";
-import Topbar from "./components/Topbar";
-import Dashboard from "./pages/Dashboard";
-import Users from "./pages/Users";
-import Analytics from "./pages/Analytics";
-import Notifications from "./pages/Notifications";
-import SignIn from "./pages/SignIn";
-import { SearchProvider } from "./context/SearchContext";
+import { useState, useEffect } from 'react';
+import { onAuthStateChanged, type User } from 'firebase/auth';
+import { auth } from './firebase';
+import Sidebar from './components/Sidebar';
+import Topbar from './components/Topbar';
+import Dashboard from './pages/Dashboard';
+import Users from './pages/Users';
+import Analytics from './pages/Analytics';
+import Notifications from './pages/Notifications';
+import SignIn from './pages/SignIn';
+import { SearchProvider } from './context/SearchContext';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -71,12 +72,16 @@ function App() {
             currentPage={currentPage}
             isMobileMenuOpen={isMobileMenuOpen}
             onCloseMobileMenu={() => setIsMobileMenuOpen(false)}
+            isCollapsed={isSidebarCollapsed}
+            onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
           />
           <div className="flex-1 flex flex-col min-w-0">
-            <Topbar onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
-            <main className="flex-1 overflow-auto bg-gray-50/30">
-              {renderCurrentPage()}
-            </main>
+            <Topbar
+              onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              currentPage={currentPage}
+              onNavigate={handleNavigation}
+            />
+            <main className="flex-1 overflow-auto bg-gray-50/30">{renderCurrentPage()}</main>
           </div>
         </div>
       </div>
