@@ -1,6 +1,5 @@
 import { X, User as UserIcon, Mail, Calendar, Shield } from 'lucide-react';
 import { type User } from '../../store/userSlice';
-import JournalingAnalytics from '../JournalingAnalytics';
 import DailyCopingToolsAnalytics from '../DailyCopingToolsAnalytics';
 import CommunityAnalytics from '../CommunityAnalytics';
 import RetentionMetrics from '../RetentionMetrics';
