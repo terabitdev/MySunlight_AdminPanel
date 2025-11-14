@@ -157,10 +157,10 @@ export default function UserDetailsModal({ isOpen, onClose, user }: UserDetailsM
               <RetentionMetrics user={user} />
             </div>
 
-            {/* Journaling Analytics Section */}
-            <div className="border-t border-gray-200 pt-6">
+            {/* Journaling Analytics Section - Hidden */}
+            {/* <div className="border-t border-gray-200 pt-6">
               <JournalingAnalytics userId={user.uid} />
-            </div>
+            </div> */}
 
             {/* Daily Coping Tools Analytics Section */}
             <div className="border-t border-gray-200 pt-6 mt-6">

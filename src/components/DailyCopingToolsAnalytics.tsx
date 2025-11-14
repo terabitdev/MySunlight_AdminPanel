@@ -51,22 +51,8 @@ export default function DailyCopingToolsAnalytics({ userId }: DailyCopingToolsAn
   }
 
   if (error) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 max-w-md text-center">
-          <p className="text-yellow-800 font-inter-tight mb-2 font-medium">Analytics Data Not Available</p>
-          <p className="text-yellow-700 font-inter-tight text-sm mb-3">
-            Firebase Analytics events need to be logged to Firestore for admin dashboard access.
-          </p>
-          <button
-            onClick={() => dispatch(fetchCopingToolsAnalytics(userId))}
-            className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors text-sm font-medium"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
+    // Error message hidden - show nothing
+    return null;
   }
 
   const hasData =
