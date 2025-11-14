@@ -140,11 +140,11 @@ export default function Feedback() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
-        <div className="flex items-center justify-center h-40">
+      <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 sm:p-6">
+        <div className="flex items-center justify-center h-32 sm:h-40">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto mb-3"></div>
-            <p className="text-gray-600 font-inter-tight">Loading feedback...</p>
+            <div className="animate-spin rounded-full h-8 w-8 sm:h-10 sm:w-10 border-b-2 border-blue-600 mx-auto mb-2 sm:mb-3"></div>
+            <p className="text-sm sm:text-base text-gray-600 font-inter-tight">Loading feedback...</p>
           </div>
         </div>
       </div>
@@ -153,13 +153,13 @@ export default function Feedback() {
 
   if (error) {
     return (
-      <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
-        <div className="flex items-center justify-center h-40">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 max-w-md">
-            <p className="text-red-600 font-inter-tight mb-3">{error}</p>
+      <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 sm:p-6">
+        <div className="flex items-center justify-center h-32 sm:h-40">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4 max-w-md mx-4">
+            <p className="text-sm sm:text-base text-red-600 font-inter-tight mb-2 sm:mb-3">{error}</p>
             <button
               onClick={fetchFeedback}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              className="w-full sm:w-auto px-4 py-2 bg-red-600 text-white text-sm sm:text-base rounded-lg hover:bg-red-700 transition-colors"
             >
               Try Again
             </button>
@@ -172,13 +172,13 @@ export default function Feedback() {
   return (
     <div className="bg-white rounded-lg shadow-md border border-gray-200">
       {/* Header */}
-      <div className="p-6 border-b border-gray-200">
+      <div className="p-4 sm:p-5 md:p-6 border-b border-gray-200">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900 font-manrope flex items-center gap-2">
-            <MessageSquare className="h-5 w-5 text-blue-600" />
-            {/* User Feedback */} To Feedback Recevied
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 font-manrope flex items-center gap-2">
+            <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+            <span className="truncate">Total Feedback Received</span>
           </h2>
-          <p className="text-sm text-gray-600 font-inter-tight mt-1">
+          <p className="text-xs sm:text-sm text-gray-600 font-inter-tight mt-1">
             {feedbacks.length} feedback{feedbacks.length !== 1 ? 's' : ''} received
           </p>
         </div>
@@ -187,62 +187,68 @@ export default function Feedback() {
       {/* Feedback List */}
       <div className="divide-y divide-gray-200">
         {feedbacks.length === 0 ? (
-          <div className="p-8 text-center">
-            <MessageSquare className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500 font-inter-tight">No feedback available</p>
+          <div className="p-6 sm:p-8 text-center">
+            <MessageSquare className="h-10 w-10 sm:h-12 sm:w-12 text-gray-300 mx-auto mb-2 sm:mb-3" />
+            <p className="text-sm sm:text-base text-gray-500 font-inter-tight">No feedback available</p>
           </div>
         ) : (
           paginatedFeedbacks.map((feedback) => (
-            <div key={feedback.id} className="p-6 hover:bg-gray-50 transition-colors">
+            <div key={feedback.id} className="p-4 sm:p-5 md:p-6 hover:bg-gray-50 transition-colors">
               {/* Feedback Header */}
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
-                <div className="flex items-center gap-3 flex-1 min-w-0">
+                <div className="flex items-start sm:items-center gap-2 sm:gap-3 flex-1 min-w-0">
                   <div className="shrink-0">
-                    <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                      <User className="h-5 w-5 text-white" />
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                      <User className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-sm font-semibold text-gray-900 font-manrope truncate">
+                      <p className="text-xs sm:text-sm font-semibold text-gray-900 font-manrope break-words">
                         {feedback.userName || 'Anonymous User'}
                       </p>
                       <span
-                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium font-inter-tight ${getTypeColor(
+                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium font-inter-tight ${getTypeColor(
                           feedback.feedbackType
                         )}`}
                       >
                         {feedback.feedbackType}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 mt-1 text-xs text-gray-500 font-inter-tight">
-                      <Mail className="h-3 w-3" />
+                    <div className="flex items-center gap-1 sm:gap-2 mt-1 text-[10px] sm:text-xs text-gray-500 font-inter-tight">
+                      <Mail className="h-3 w-3 shrink-0" />
                       <span className="truncate">{feedback.userEmail}</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Rating and Date */}
-                <div className="flex items-center gap-4 shrink-0">
+                {/* Rating and Date - Desktop */}
+                <div className="hidden sm:flex items-center gap-3 md:gap-4 shrink-0">
                   {renderStars(feedback.rating)}
                   <div className="flex items-center gap-1 text-xs text-gray-500 font-inter-tight">
                     <Calendar className="h-3 w-3" />
-                    <span className="hidden sm:inline">{formatDate(feedback.createdAt)}</span>
+                    <span className="whitespace-nowrap">{formatDate(feedback.createdAt)}</span>
                   </div>
                 </div>
               </div>
 
+              {/* Rating - Mobile Only */}
+              <div className="sm:hidden mb-3 flex items-center gap-2">
+                <span className="text-xs text-gray-600 font-inter-tight">Rating:</span>
+                {renderStars(feedback.rating)}
+              </div>
+
               {/* Feedback Message */}
               <div className="ml-0 sm:ml-13">
-                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                  <p className="text-sm text-gray-800 font-inter-tight leading-relaxed">
+                <div className="bg-gray-50 rounded-lg p-3 sm:p-4 border border-gray-200">
+                  <p className="text-xs sm:text-sm text-gray-800 font-inter-tight leading-relaxed break-words">
                     {feedback.message}
                   </p>
                 </div>
               </div>
 
               {/* Mobile Date */}
-              <div className="sm:hidden mt-3 flex items-center gap-1 text-xs text-gray-500 font-inter-tight">
+              <div className="sm:hidden mt-3 flex items-center gap-1 text-[10px] sm:text-xs text-gray-500 font-inter-tight">
                 <Calendar className="h-3 w-3" />
                 <span>{formatDate(feedback.createdAt)}</span>
               </div>

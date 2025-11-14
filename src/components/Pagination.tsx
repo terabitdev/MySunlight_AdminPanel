@@ -58,34 +58,34 @@ export default function Pagination({
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-white">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 px-4 sm:px-5 md:px-6 py-3 sm:py-4 border-t border-gray-200 bg-white">
       {/* Items info */}
-      <div className="text-sm text-gray-600 font-inter-tight">
+      <div className="text-xs sm:text-sm text-gray-600 font-inter-tight order-2 sm:order-1">
         Showing <span className="font-medium text-gray-900">{startItem}</span> to{' '}
         <span className="font-medium text-gray-900">{endItem}</span> of{' '}
         <span className="font-medium text-gray-900">{totalItems}</span> results
       </div>
 
       {/* Pagination controls */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 sm:gap-2 order-1 sm:order-2">
         {/* Previous button */}
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="p-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="p-1.5 sm:p-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           aria-label="Previous page"
         >
-          <ChevronLeft className="h-5 w-5" />
+          <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
         </button>
 
         {/* Page numbers */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5 sm:gap-1">
           {getPageNumbers().map((page, index) => {
             if (page === '...') {
               return (
                 <span
                   key={`ellipsis-${index}`}
-                  className="px-3 py-2 text-gray-500 font-inter-tight"
+                  className="px-2 sm:px-3 py-1 sm:py-2 text-gray-500 font-inter-tight text-xs sm:text-sm"
                 >
                   ...
                 </span>
@@ -97,7 +97,7 @@ export default function Pagination({
                 key={page}
                 onClick={() => onPageChange(page as number)}
                 className={`
-                  px-3 py-2 rounded-lg font-medium text-sm transition-colors font-manrope
+                  px-2 sm:px-3 py-1 sm:py-2 rounded-lg font-medium text-xs sm:text-sm transition-colors font-manrope min-w-7 sm:min-w-9
                   ${
                     currentPage === page
                       ? 'bg-blue-600 text-white'
@@ -115,10 +115,10 @@ export default function Pagination({
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="p-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="p-1.5 sm:p-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           aria-label="Next page"
         >
-          <ChevronRight className="h-5 w-5" />
+          <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
         </button>
       </div>
     </div>
