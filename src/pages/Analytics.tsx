@@ -180,6 +180,7 @@ export default function Analytics() {
         <h1 className="text-3xl font-david-libre font-bold text-gray-800 flex items-center gap-3">
           <TrendingUp className="h-8 w-8 text-blue-600" />
           Dashboard
+          {/* Analytics Dashboard */}
         </h1>
         <p className="text-gray-600 font-inter-tight mt-1">
           Track user growth and engagement metrics

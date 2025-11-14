@@ -213,7 +213,8 @@ export default function Users() {
       <div className="mb-6">
         <h1 className="text-3xl font-david-libre font-bold text-gray-800 flex items-center gap-3">
           <UsersIcon className="h-8 w-8 text-blue-600" />
-          User Analytics
+          Users Analytics
+          {/* Users Management */}
         </h1>
         <p className="text-gray-600 font-inter-tight mt-1">
           {searchQuery.trim() ? (
